@@ -26,11 +26,11 @@
             
             <nav class="menu">
                 <div class="menu-section">MENU</div>
-                <a href="#" class="menu-item active"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="#" class="menu-item active menu-item-dashboard" title="Dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
                 
                 <div class="menu-section mt-4">GENERAL</div>
-                <a href="#" class="menu-item" id="btn-settings"><i class="fas fa-cog"></i> Settings</a>
-                <a href="#" class="menu-item" id="btn-theme-toggle"><i class="fas fa-moon"></i> Dark Mode</a>
+                <a href="#" class="menu-item menu-item-settings" id="btn-settings" title="Settings"><i class="fas fa-sliders"></i> <span>Settings</span></a>
+                <a href="#" class="menu-item menu-item-theme" id="btn-theme-toggle" title="Dark Mode"><i class="fas fa-moon"></i> <span>Dark Mode</span></a>
             </nav>
         </aside>
 
@@ -178,7 +178,10 @@
                     <div class="side-column">
                         <!-- Podium Card -->
                         <div class="card podium-card">
-                            <h2>Class Top 3 Rankers</h2>
+                            <div class="podium-card-header">
+                                <span class="podium-kicker">Leaderboard</span>
+                                <h2>Top 3 Students</h2>
+                            </div>
                             <div class="podium-container">
                                 <!-- Rank 2 -->
                                 <div class="podium-item rank-2">

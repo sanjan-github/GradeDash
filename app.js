@@ -28,6 +28,8 @@ let currentSort = 'entry-desc';
 // Modals
 const settingsModal = document.getElementById('settings-modal');
 const closeModals = document.querySelectorAll('.close-modal');
+const topbar = document.querySelector('.topbar');
+const dashboardScroll = document.querySelector('.dashboard-scroll');
 
 // Buttons
 const btnSettings = document.getElementById('btn-settings');
@@ -116,11 +118,11 @@ function renderTable(data) {
         
         return `
             <tr>
-                <td style="font-weight: 500;">${s.name}</td>
-                <td>${s.mark} <span style="color:var(--text-muted);font-size:11px;">/ ${settings.totalMarks}</span></td>
-                <td>${percentage}%</td>
-                <td><span class="badge ${pass ? 'pass' : 'fail'}">${pass ? 'Qualified' : 'Failed'}</span></td>
-                <td class="actions-cell">
+                <td data-label="Student" style="font-weight: 500;">${s.name}</td>
+                <td data-label="Marks">${s.mark} <span style="color:var(--text-muted);font-size:11px;">/ ${settings.totalMarks}</span></td>
+                <td data-label="Percentage">${percentage}%</td>
+                <td data-label="Status"><span class="badge ${pass ? 'pass' : 'fail'}">${pass ? 'Qualified' : 'Failed'}</span></td>
+                <td data-label="Actions" class="actions-cell">
                     <button class="btn-action edit" onclick="prepareUpdate(${s.id})" title="Edit"><i class="fas fa-edit"></i></button>
                     <button class="btn-action delete" onclick="deleteStudent(${s.id})" title="Delete"><i class="fas fa-trash-alt"></i></button>
                 </td>
@@ -174,8 +176,18 @@ function populateSettingsForm() {
 
 // --- EVENT LISTENERS ---
 function setupEventListeners() {
+    document.querySelectorAll('.menu-item[href="#"]').forEach(link => {
+        link.addEventListener('click', (e) => e.preventDefault());
+    });
+
+    dashboardScroll.addEventListener('scroll', syncTopbarState, { passive: true });
+    syncTopbarState();
+
     // Modals
-    btnSettings.addEventListener('click', () => settingsModal.classList.remove('hidden'));
+    btnSettings.addEventListener('click', (e) => {
+        e.preventDefault();
+        settingsModal.classList.remove('hidden');
+    });
     
     closeModals.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -184,7 +196,8 @@ function setupEventListeners() {
     });
 
     // Theme
-    btnThemeToggle.addEventListener('click', () => {
+    btnThemeToggle.addEventListener('click', (e) => {
+        e.preventDefault();
         const current = document.body.getAttribute('data-theme');
         const next = current === 'light' ? 'dark' : 'light';
         applyTheme(next);
@@ -224,9 +237,16 @@ function setupEventListeners() {
 function applyTheme(theme) {
     document.body.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
-    const icon = btnThemeToggle.querySelector('i');
-    icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-    btnThemeToggle.innerHTML = `<i class="${icon.className}"></i> ${theme === 'dark' ? 'Light Mode' : 'Dark Mode'}`;
+    const iconClass = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    const label = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+
+    btnThemeToggle.title = label;
+    btnThemeToggle.setAttribute('aria-label', label);
+    btnThemeToggle.innerHTML = `<i class="${iconClass}"></i> <span>${label}</span>`;
+}
+
+function syncTopbarState() {
+    topbar.classList.toggle('scrolled', dashboardScroll.scrollTop > 8);
 }
 
 // --- CRUD OPERATIONS ---
