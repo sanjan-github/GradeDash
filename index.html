@@ -9,9 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- PDF & Excel Export Libraries -->
+    <!-- PDF, Excel & DOCX Export Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
 </head>
 <body data-theme="light">
     
@@ -31,14 +32,6 @@
                 <a href="#" class="menu-item" id="btn-settings"><i class="fas fa-cog"></i> Settings</a>
                 <a href="#" class="menu-item" id="btn-theme-toggle"><i class="fas fa-moon"></i> Dark Mode</a>
             </nav>
-            
-            <div class="sidebar-promo">
-                <div class="promo-content">
-                    <i class="fas fa-mobile-alt"></i>
-                    <h4>Export Anywhere</h4>
-                    <p>Download PDFs and Sheets</p>
-                </div>
-            </div>
         </aside>
 
         <!-- Main Content Area -->
@@ -51,15 +44,8 @@
                 </div>
                 
                 <div class="header-actions">
-                    <button class="icon-btn"><i class="far fa-envelope"></i></button>
-                    <button class="icon-btn"><i class="far fa-bell"></i></button>
-                    <div class="user-profile">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Teacher" alt="Profile">
-                        <div class="user-info">
-                            <span class="user-name">Educator</span>
-                            <span class="user-role">Administrator</span>
-                        </div>
-                    </div>
+                    <button class="icon-btn" title="Messages"><i class="far fa-envelope"></i></button>
+                    <button class="icon-btn" title="Notifications"><i class="far fa-bell"></i></button>
                 </div>
             </header>
 
@@ -147,7 +133,7 @@
                                     <div class="dropdown-menu hidden" id="export-menu">
                                         <a href="#" data-format="pdf"><i class="far fa-file-pdf text-danger"></i> PDF Document</a>
                                         <a href="#" data-format="xlsx"><i class="far fa-file-excel text-success"></i> Excel Sheet</a>
-                                        <a href="#" data-format="csv"><i class="fas fa-file-csv"></i> CSV File</a>
+                                        <a href="#" data-format="docx"><i class="far fa-file-word text-primary"></i> Word Document</a>
                                     </div>
                                 </div>
                             </div>

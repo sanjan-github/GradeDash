@@ -305,21 +305,75 @@ function exportData(format) {
         return;
     }
 
-    if (format === 'csv') exportCSV(data);
+    if (format === 'docx') exportDOCX(data);
     else if (format === 'xlsx') exportExcel(data);
     else if (format === 'pdf') exportPDF(data);
 }
 
-function exportCSV(data) {
-    let csv = 'Name,Marks,Percentage,Status\n';
+async function exportDOCX(data) {
+    if (typeof docx === 'undefined') {
+        showToast('DOCX library still loading. Please try again in a moment.');
+        return;
+    }
+
+    showToast('Generating DOCX...');
+
+    const tableRows = [
+        new docx.TableRow({
+            children: [
+                new docx.TableCell({ children: [new docx.Paragraph({ text: "Name", alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] }),
+                new docx.TableCell({ children: [new docx.Paragraph({ text: "Marks", alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] }),
+                new docx.TableCell({ children: [new docx.Paragraph({ text: "Percentage", alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] }),
+                new docx.TableCell({ children: [new docx.Paragraph({ text: "Status", alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] })
+            ]
+        })
+    ];
+
     data.forEach(s => {
         const pass = hasPassed(s.mark) ? 'Qualified' : 'Failed';
         const percent = ((s.mark / settings.totalMarks) * 100).toFixed(1) + '%';
-        csv += `"${s.name}",${s.mark},${percent},${pass}\n`;
+        tableRows.push(new docx.TableRow({
+            children: [
+                new docx.TableCell({ children: [new docx.Paragraph({ text: s.name })] }),
+                new docx.TableCell({ children: [new docx.Paragraph({ text: String(s.mark), alignment: docx.AlignmentType.CENTER })] }),
+                new docx.TableCell({ children: [new docx.Paragraph({ text: percent, alignment: docx.AlignmentType.CENTER })] }),
+                new docx.TableCell({ children: [new docx.Paragraph({ text: pass, alignment: docx.AlignmentType.CENTER })] })
+            ]
+        }));
     });
-    
-    const blob = new Blob([csv], { type: 'text/csv' });
-    downloadBlob(blob, 'student_report.csv');
+
+    const doc = new docx.Document({
+        sections: [{
+            properties: {},
+            children: [
+                new docx.Paragraph({
+                    text: "Student Performance Report",
+                    heading: docx.HeadingLevel.HEADING_1,
+                    alignment: docx.AlignmentType.CENTER
+                }),
+                new docx.Paragraph({
+                    text: "Generated on " + new Date().toLocaleDateString(),
+                    alignment: docx.AlignmentType.CENTER,
+                    spacing: { after: 200 }
+                }),
+                new docx.Table({
+                    rows: tableRows,
+                    width: {
+                        size: 100,
+                        type: docx.WidthType.PERCENTAGE,
+                    }
+                })
+            ]
+        }]
+    });
+
+    try {
+        const blob = await docx.Packer.toBlob(doc);
+        downloadBlob(blob, 'student_report.docx');
+    } catch (err) {
+        showToast('Error generating DOCX');
+        console.error(err);
+    }
 }
 
 function exportExcel(data) {
