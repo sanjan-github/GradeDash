@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Marks Manager</title>
+    <meta name="description" content="Manage, analyze, and keep track of your students' performance">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="background">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <main class="container">
+        <div class="glass-panel">
+            <header>
+                <div class="header-content">
+                    <h1>Student Marks Manager</h1>
+                    <p>Manage, analyze, and track performance beautifully.</p>
+                </div>
+                <div class="header-actions">
+                    <button id="download-btn" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Download Data
+                    </button>
+                </div>
+            </header>
+
+            <div class="app-grid">
+                <!-- Add Student Section -->
+                <section class="card glass-card fade-in">
+                    <h2><i class="fas fa-user-plus"></i> Add Student</h2>
+                    <form id="add-student-form">
+                        <div class="form-group">
+                            <label for="student-name">Student Name</label>
+                            <input type="text" id="student-name" required placeholder="e.g. John Doe" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="student-mark">Marks</label>
+                            <input type="number" id="student-mark" required min="0" placeholder="e.g. 85">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Add Student</button>
+                    </form>
+                </section>
+
+                <!-- Search & Actions Section -->
+                <section class="card glass-card fade-in" style="animation-delay: 0.1s;">
+                    <h2><i class="fas fa-search"></i> Find & Update</h2>
+                    
+                    <div class="search-box">
+                        <div class="input-with-icon">
+                            <i class="fas fa-search icon"></i>
+                            <input type="text" id="search-input" placeholder="Search student by name...">
+                        </div>
+                    </div>
+                    
+                    <div id="search-result" class="result-box hidden">
+                        <!-- Search results injected here -->
+                    </div>
+
+                    <form id="update-form" class="hidden update-panel">
+                        <h3>Update Student</h3>
+                        <div class="form-group">
+                            <input type="text" id="update-name" disabled class="disabled-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="update-mark">New Marks</label>
+                            <input type="number" id="update-mark" required placeholder="Enter new marks">
+                        </div>
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-warning">Save Update</button>
+                            <button type="button" id="cancel-update" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Analytics Section -->
+                <section class="card glass-card analytics-section fade-in" style="animation-delay: 0.2s;">
+                    <h2><i class="fas fa-chart-pie"></i> Class Analytics</h2>
+                    <div class="stats-grid">
+                        <div class="stat-box primary">
+                            <span class="stat-title">Total</span>
+                            <span class="stat-value" id="total-students">0</span>
+                        </div>
+                        <div class="stat-box success">
+                            <span class="stat-title">Passed (≥ 40)</span>
+                            <span class="stat-value" id="passed-count">0</span>
+                        </div>
+                        <div class="stat-box danger">
+                            <span class="stat-title">Failed (< 40)</span>
+                            <span class="stat-value" id="failed-count">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="extremes-container">
+                        <div class="extreme-card">
+                            <div class="extreme-icon top"><i class="fas fa-trophy"></i></div>
+                            <div class="extreme-info">
+                                <span class="label">Top Performer</span>
+                                <span class="value" id="top-performer">-</span>
+                            </div>
+                        </div>
+                        <div class="extreme-card">
+                            <div class="extreme-icon bottom"><i class="fas fa-arrow-down"></i></div>
+                            <div class="extreme-info">
+                                <span class="label">Lowest Performer</span>
+                                <span class="value" id="lowest-performer">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Students List Section -->
+                <section class="card glass-card list-section fade-in" style="animation-delay: 0.3s;">
+                    <h2><i class="fas fa-list"></i> Students List</h2>
+                    <div class="table-container">
+                        <table id="students-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Marks</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                        <div id="empty-state" class="empty-state">
+                            <i class="fas fa-user-graduate"></i>
+                            <p>No student data available. Add a student to get started!</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <i class="fas fa-check-circle toast-icon"></i>
+        <span id="toast-message">Action successful</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
