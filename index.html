@@ -44,8 +44,7 @@
                 </div>
                 
                 <div class="header-actions">
-                    <button class="icon-btn" title="Messages"><i class="far fa-envelope"></i></button>
-                    <button class="icon-btn" title="Notifications"><i class="far fa-bell"></i></button>
+                    <!-- Notifications and emails removed as they are unused -->
                 </div>
             </header>
 
@@ -55,9 +54,6 @@
                         <h1>Dashboard</h1>
                         <p>Plan, prioritize, and accomplish your grading with ease.</p>
                     </div>
-                    <button class="btn btn-primary" id="btn-add-student">
-                        <i class="fas fa-plus"></i> Add Student
-                    </button>
                 </div>
 
                 <!-- KPI Cards Row -->
@@ -105,6 +101,23 @@
                             <span class="trend neutral">Overall Marks</span>
                         </div>
                     </div>
+                </div>
+
+                <!-- Quick Add Row -->
+                <div class="card quick-add-card" style="margin-bottom: 24px; padding: 20px 24px;">
+                    <form id="add-student-form" style="display: flex; gap: 16px; align-items: flex-end; margin: 0;">
+                        <div class="form-group" style="margin-bottom: 0; flex: 2;">
+                            <label style="margin-bottom: 6px;">Student Name</label>
+                            <input type="text" id="student-name" required placeholder="e.g. John Doe" autocomplete="off">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                            <label style="margin-bottom: 6px;">Marks Scored</label>
+                            <input type="number" id="student-mark" required min="0" placeholder="e.g. 85">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="height: 40px; padding: 0 32px;">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Main Content Grid -->
@@ -213,27 +226,6 @@
                 </div>
             </div>
         </main>
-    </div>
-
-    <!-- Add Student Modal -->
-    <div class="modal-overlay hidden" id="add-modal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h2>Add New Student</h2>
-                <button class="close-modal"><i class="fas fa-times"></i></button>
-            </div>
-            <form id="add-student-form">
-                <div class="form-group">
-                    <label>Student Name</label>
-                    <input type="text" id="student-name" required placeholder="e.g. John Doe">
-                </div>
-                <div class="form-group">
-                    <label>Marks Scored</label>
-                    <input type="number" id="student-mark" required min="0" placeholder="e.g. 85">
-                </div>
-                <button type="submit" class="btn btn-primary w-100 mt-4">Add Student</button>
-            </form>
-        </div>
     </div>
 
     <!-- Settings Modal -->

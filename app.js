@@ -26,12 +26,10 @@ let currentSort = 'entry-desc';
 
 // --- DOM ELEMENTS ---
 // Modals
-const addModal = document.getElementById('add-modal');
 const settingsModal = document.getElementById('settings-modal');
 const closeModals = document.querySelectorAll('.close-modal');
 
 // Buttons
-const btnAddStudent = document.getElementById('btn-add-student');
 const btnSettings = document.getElementById('btn-settings');
 const btnThemeToggle = document.getElementById('btn-theme-toggle');
 const btnExportMenu = document.getElementById('btn-export-menu');
@@ -177,12 +175,10 @@ function populateSettingsForm() {
 // --- EVENT LISTENERS ---
 function setupEventListeners() {
     // Modals
-    btnAddStudent.addEventListener('click', () => addModal.classList.remove('hidden'));
     btnSettings.addEventListener('click', () => settingsModal.classList.remove('hidden'));
     
     closeModals.forEach(btn => {
         btn.addEventListener('click', () => {
-            addModal.classList.add('hidden');
             settingsModal.classList.add('hidden');
         });
     });
@@ -244,7 +240,7 @@ function handleAdd(e) {
         students.push({ id: newId, name, mark });
         saveState();
         addForm.reset();
-        addModal.classList.add('hidden');
+        document.getElementById('student-name').focus(); // Automatically focus for quick entry
         showToast(`Added ${name} successfully!`);
     }
 }

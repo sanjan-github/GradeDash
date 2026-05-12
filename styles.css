@@ -39,9 +39,9 @@
     
     --border-color: #374151;
     
-    --primary-color: #34D399; /* Lighter green for dark mode */
-    --primary-hover: #10B981;
-    --primary-light: rgba(52, 211, 153, 0.1);
+    --primary-color: #059669; /* emerald-600 for better contrast with white text */
+    --primary-hover: #047857;
+    --primary-light: rgba(52, 211, 153, 0.15);
     
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
@@ -364,7 +364,7 @@ body {
     align-items: center;
     gap: 4px;
 }
-.primary-kpi .trend { background: rgba(255,255,255,0.15); }
+.primary-kpi .trend { background: rgba(255,255,255,0.15); color: #FFFFFF; }
 .trend.up { color: var(--success); background: var(--primary-light); }
 .trend.down { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
 .trend.neutral { color: var(--text-secondary); background: var(--bg-main); }
