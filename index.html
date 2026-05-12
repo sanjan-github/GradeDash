@@ -4,143 +4,304 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Marks Manager</title>
-    <meta name="description" content="Manage, analyze, and keep track of your students' performance">
+    <meta name="description" content="Modern dashboard for managing student marks">
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PDF & Excel Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
 </head>
-<body>
-    <div class="background"></div>
-
-    <main class="container">
-        <div class="glass-panel">
-            <header>
-                <div class="header-content">
-                    <h1>Student Marks Manager</h1>
-                    <p>Manage, analyze, and track performance beautifully.</p>
+<body data-theme="light">
+    
+    <div class="layout-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>GradeDash</span>
+            </div>
+            
+            <nav class="menu">
+                <div class="menu-section">MENU</div>
+                <a href="#" class="menu-item active"><i class="fas fa-chart-line"></i> Dashboard</a>
+                
+                <div class="menu-section mt-4">GENERAL</div>
+                <a href="#" class="menu-item" id="btn-settings"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item" id="btn-theme-toggle"><i class="fas fa-moon"></i> Dark Mode</a>
+            </nav>
+            
+            <div class="sidebar-promo">
+                <div class="promo-content">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h4>Export Anywhere</h4>
+                    <p>Download PDFs and Sheets</p>
                 </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="topbar">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="global-search" placeholder="Search student...">
+                </div>
+                
                 <div class="header-actions">
-                    <button id="download-btn" class="btn btn-secondary">
-                        <i class="fas fa-download"></i> Download Data
-                    </button>
+                    <button class="icon-btn"><i class="far fa-envelope"></i></button>
+                    <button class="icon-btn"><i class="far fa-bell"></i></button>
+                    <div class="user-profile">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Teacher" alt="Profile">
+                        <div class="user-info">
+                            <span class="user-name">Educator</span>
+                            <span class="user-role">Administrator</span>
+                        </div>
+                    </div>
                 </div>
             </header>
 
-            <div class="app-grid">
-                <!-- Add Student Section -->
-                <section class="card glass-card fade-in">
-                    <h2><i class="fas fa-user-plus"></i> Add Student</h2>
-                    <form id="add-student-form">
-                        <div class="form-group">
-                            <label for="student-name">Student Name</label>
-                            <input type="text" id="student-name" required placeholder="e.g. John Doe" autocomplete="off">
-                        </div>
-                        <div class="form-group">
-                            <label for="student-mark">Marks</label>
-                            <input type="number" id="student-mark" required min="0" placeholder="e.g. 85">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Add Student</button>
-                    </form>
-                </section>
+            <div class="dashboard-scroll">
+                <div class="page-header">
+                    <div>
+                        <h1>Dashboard</h1>
+                        <p>Plan, prioritize, and accomplish your grading with ease.</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-add-student">
+                        <i class="fas fa-plus"></i> Add Student
+                    </button>
+                </div>
 
-                <!-- Search & Actions Section -->
-                <section class="card glass-card fade-in" style="animation-delay: 0.1s;">
-                    <h2><i class="fas fa-search"></i> Find & Update</h2>
-                    
-                    <div class="search-box">
-                        <div class="input-with-icon">
-                            <i class="fas fa-search icon"></i>
-                            <input type="text" id="search-input" placeholder="Search student by name...">
+                <!-- KPI Cards Row -->
+                <div class="kpi-grid">
+                    <div class="kpi-card primary-kpi">
+                        <div class="kpi-header">
+                            <span>Total Students</span>
+                            <div class="icon-circle"><i class="fas fa-users"></i></div>
+                        </div>
+                        <div class="kpi-value" id="kpi-total">0</div>
+                        <div class="kpi-footer">
+                            <span class="trend up"><i class="fas fa-arrow-up"></i> Registered</span>
                         </div>
                     </div>
                     
-                    <div id="search-result" class="result-box hidden">
-                        <!-- Search results injected here -->
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span>Total Passed</span>
+                            <div class="icon-circle outline"><i class="fas fa-check"></i></div>
+                        </div>
+                        <div class="kpi-value text-success" id="kpi-passed">0</div>
+                        <div class="kpi-footer">
+                            <span class="trend up" id="kpi-pass-rate">0% Pass Rate</span>
+                        </div>
                     </div>
 
-                    <form id="update-form" class="hidden update-panel">
-                        <h3>Update Student</h3>
-                        <div class="form-group">
-                            <input type="text" id="update-name" disabled class="disabled-input">
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span>Total Failed</span>
+                            <div class="icon-circle outline"><i class="fas fa-times"></i></div>
                         </div>
-                        <div class="form-group">
-                            <label for="update-mark">New Marks</label>
-                            <input type="number" id="update-mark" required placeholder="Enter new marks">
-                        </div>
-                        <div class="btn-group">
-                            <button type="submit" class="btn btn-warning">Save Update</button>
-                            <button type="button" id="cancel-update" class="btn btn-secondary">Cancel</button>
-                        </div>
-                    </form>
-                </section>
-
-                <!-- Analytics Section -->
-                <section class="card glass-card analytics-section fade-in" style="animation-delay: 0.2s;">
-                    <h2><i class="fas fa-chart-pie"></i> Class Analytics</h2>
-                    <div class="stats-grid">
-                        <div class="stat-box primary">
-                            <span class="stat-title">Total</span>
-                            <span class="stat-value" id="total-students">0</span>
-                        </div>
-                        <div class="stat-box success">
-                            <span class="stat-title">Passed (≥ 40)</span>
-                            <span class="stat-value" id="passed-count">0</span>
-                        </div>
-                        <div class="stat-box danger">
-                            <span class="stat-title">Failed (< 40)</span>
-                            <span class="stat-value" id="failed-count">0</span>
+                        <div class="kpi-value text-danger" id="kpi-failed">0</div>
+                        <div class="kpi-footer">
+                            <span class="trend down" id="kpi-fail-rate">0% Fail Rate</span>
                         </div>
                     </div>
                     
-                    <div class="extremes-container">
-                        <div class="extreme-card">
-                            <div class="extreme-icon top"><i class="fas fa-trophy"></i></div>
-                            <div class="extreme-info">
-                                <span class="label">Top Performer</span>
-                                <span class="value" id="top-performer">-</span>
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span>Class Average</span>
+                            <div class="icon-circle outline"><i class="fas fa-chart-bar"></i></div>
+                        </div>
+                        <div class="kpi-value" id="kpi-average">0</div>
+                        <div class="kpi-footer">
+                            <span class="trend neutral">Overall Marks</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="content-grid">
+                    <!-- Left Column: Student List -->
+                    <div class="card list-card">
+                        <div class="card-header">
+                            <h2>Student Roster</h2>
+                            
+                            <div class="list-controls">
+                                <div class="sort-control">
+                                    <i class="fas fa-sort-amount-down"></i>
+                                    <select id="sort-select">
+                                        <option value="entry-desc">Newest First</option>
+                                        <option value="entry-asc">Oldest First</option>
+                                        <option value="marks-desc">Marks (Highest)</option>
+                                        <option value="marks-asc">Marks (Lowest)</option>
+                                        <option value="name-asc">Name (A-Z)</option>
+                                        <option value="name-desc">Name (Z-A)</option>
+                                    </select>
+                                </div>
+                                <div class="export-dropdown">
+                                    <button class="btn btn-outline" id="btn-export-menu">
+                                        <i class="fas fa-cloud-download-alt"></i> Export
+                                    </button>
+                                    <div class="dropdown-menu hidden" id="export-menu">
+                                        <a href="#" data-format="pdf"><i class="far fa-file-pdf text-danger"></i> PDF Document</a>
+                                        <a href="#" data-format="xlsx"><i class="far fa-file-excel text-success"></i> Excel Sheet</a>
+                                        <a href="#" data-format="csv"><i class="fas fa-file-csv"></i> CSV File</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="extreme-card">
-                            <div class="extreme-icon bottom"><i class="fas fa-arrow-down"></i></div>
-                            <div class="extreme-info">
-                                <span class="label">Lowest Performer</span>
-                                <span class="value" id="lowest-performer">-</span>
+                        
+                        <div class="table-container">
+                            <table id="students-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student Details</th>
+                                        <th>Marks</th>
+                                        <th>Percentage</th>
+                                        <th>Status</th>
+                                        <th class="text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="students-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                            <div id="empty-state" class="empty-state hidden">
+                                <i class="fas fa-folder-open"></i>
+                                <p>No students found. Add one to get started.</p>
                             </div>
                         </div>
                     </div>
-                </section>
 
-                <!-- Students List Section -->
-                <section class="card glass-card list-section fade-in" style="animation-delay: 0.3s;">
-                    <h2><i class="fas fa-list"></i> Students List</h2>
-                    <div class="table-container">
-                        <table id="students-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Marks</th>
-                                    <th>Status</th>
-                                    <th class="text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="students-body">
-                                <!-- Populated by JS -->
-                            </tbody>
-                        </table>
-                        <div id="empty-state" class="empty-state">
-                            <i class="fas fa-user-graduate"></i>
-                            <p>No student data available. Add a student to get started!</p>
+                    <!-- Right Column: Podium & Quick Actions -->
+                    <div class="side-column">
+                        <!-- Podium Card -->
+                        <div class="card podium-card">
+                            <h2>Class Top 3 Rankers</h2>
+                            <div class="podium-container">
+                                <!-- Rank 2 -->
+                                <div class="podium-item rank-2">
+                                    <div class="avatar"><i class="fas fa-user"></i></div>
+                                    <div class="podium-bar">2nd</div>
+                                    <div class="rank-name" id="rank2-name">-</div>
+                                    <div class="rank-mark" id="rank2-mark">-</div>
+                                </div>
+                                <!-- Rank 1 -->
+                                <div class="podium-item rank-1">
+                                    <div class="avatar crown"><i class="fas fa-crown"></i></div>
+                                    <div class="podium-bar">1st</div>
+                                    <div class="rank-name" id="rank1-name">-</div>
+                                    <div class="rank-mark" id="rank1-mark">-</div>
+                                </div>
+                                <!-- Rank 3 -->
+                                <div class="podium-item rank-3">
+                                    <div class="avatar"><i class="fas fa-user"></i></div>
+                                    <div class="podium-bar">3rd</div>
+                                    <div class="rank-name" id="rank3-name">-</div>
+                                    <div class="rank-mark" id="rank3-mark">-</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Update Form Card (Hidden by default) -->
+                        <div class="card update-card hidden" id="update-container">
+                            <h2>Update Marks</h2>
+                            <form id="update-form">
+                                <div class="form-group">
+                                    <label>Student Name</label>
+                                    <input type="text" id="update-name" disabled class="disabled-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>New Marks</label>
+                                    <input type="number" id="update-mark" required min="0">
+                                </div>
+                                <div class="btn-group">
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                    <button type="button" class="btn btn-outline" id="cancel-update">Cancel</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                </section>
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
-    <!-- Toast Notification -->
+    <!-- Add Student Modal -->
+    <div class="modal-overlay hidden" id="add-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Add New Student</h2>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="add-student-form">
+                <div class="form-group">
+                    <label>Student Name</label>
+                    <input type="text" id="student-name" required placeholder="e.g. John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Marks Scored</label>
+                    <input type="number" id="student-mark" required min="0" placeholder="e.g. 85">
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mt-4">Add Student</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay hidden" id="settings-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Evaluation Settings</h2>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="settings-form">
+                <div class="form-group">
+                    <label>Total Maximum Marks</label>
+                    <input type="number" id="setting-total-marks" required min="1" value="100">
+                    <small>Used to calculate percentages</small>
+                </div>
+                <div class="form-group mt-4">
+                    <label>Qualifying Type</label>
+                    <select id="setting-qualify-type">
+                        <option value="marks">By Minimum Marks</option>
+                        <option value="percentage">By Minimum Percentage</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label id="setting-qualify-label">Qualifying Value</label>
+                    <input type="number" id="setting-qualify-value" required min="0" value="40">
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mt-4">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Print Template (Hidden) -->
+    <div id="print-template" class="hidden">
+        <div style="padding: 40px; font-family: Arial, sans-serif;">
+            <h1 style="color: #1a5d3f; text-align: center;">Student Performance Report</h1>
+            <p style="text-align: center;" id="print-date"></p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;" border="1">
+                <thead>
+                    <tr style="background-color: #f3f4f6;">
+                        <th style="padding: 10px;">Name</th>
+                        <th style="padding: 10px;">Marks</th>
+                        <th style="padding: 10px;">Percentage</th>
+                        <th style="padding: 10px;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="print-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Toast -->
     <div id="toast" class="toast hidden">
         <i class="fas fa-check-circle toast-icon"></i>
-        <span id="toast-message">Action successful</span>
+        <span id="toast-message">Success</span>
     </div>
 
     <script src="app.js"></script>

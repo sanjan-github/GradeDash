@@ -1,270 +1,410 @@
-// State management using LocalStorage
-let students = JSON.parse(localStorage.getItem('studentsData')) || {};
+// --- STATE MANAGEMENT ---
+// Default Settings
+let settings = JSON.parse(localStorage.getItem('gradeDashSettings')) || {
+    totalMarks: 100,
+    qualifyType: 'percentage', // 'marks' or 'percentage'
+    qualifyValue: 40
+};
 
-// DOM Elements
+// Students Data Migration & Loading
+// Previous version used an object { "Name": Mark }. We need an array for sorting by entry order.
+let rawStudents = JSON.parse(localStorage.getItem('studentsData')) || {};
+let students = [];
+
+if (Array.isArray(rawStudents)) {
+    students = rawStudents;
+} else {
+    // Migration from old dict structure
+    let id = 1;
+    for (const [name, mark] of Object.entries(rawStudents)) {
+        students.push({ id: id++, name, mark });
+    }
+    localStorage.setItem('studentsData', JSON.stringify(students));
+}
+
+let currentSort = 'entry-desc';
+
+// --- DOM ELEMENTS ---
+// Modals
+const addModal = document.getElementById('add-modal');
+const settingsModal = document.getElementById('settings-modal');
+const closeModals = document.querySelectorAll('.close-modal');
+
+// Buttons
+const btnAddStudent = document.getElementById('btn-add-student');
+const btnSettings = document.getElementById('btn-settings');
+const btnThemeToggle = document.getElementById('btn-theme-toggle');
+const btnExportMenu = document.getElementById('btn-export-menu');
+const exportMenu = document.getElementById('export-menu');
+
+// Forms
 const addForm = document.getElementById('add-student-form');
-const nameInput = document.getElementById('student-name');
-const markInput = document.getElementById('student-mark');
-const searchInput = document.getElementById('search-input');
-const searchResult = document.getElementById('search-result');
+const settingsForm = document.getElementById('settings-form');
 const updateForm = document.getElementById('update-form');
-const updateName = document.getElementById('update-name');
-const updateMark = document.getElementById('update-mark');
-const cancelUpdateBtn = document.getElementById('cancel-update');
+const searchInput = document.getElementById('global-search');
+const sortSelect = document.getElementById('sort-select');
+
+// Table & Metrics
 const studentsBody = document.getElementById('students-body');
 const emptyState = document.getElementById('empty-state');
-const tableContainer = document.querySelector('table');
-const downloadBtn = document.getElementById('download-btn');
+const updateContainer = document.getElementById('update-container');
 
-// Analytics Elements
-const elTotal = document.getElementById('total-students');
-const elPassed = document.getElementById('passed-count');
-const elFailed = document.getElementById('failed-count');
-const elTop = document.getElementById('top-performer');
-const elLowest = document.getElementById('lowest-performer');
-
-// Initialize app
+// --- INITIALIZATION ---
 function init() {
-    renderTable();
-    updateAnalytics();
+    applyTheme(localStorage.getItem('theme') || 'light');
+    populateSettingsForm();
+    renderApp();
     setupEventListeners();
 }
 
-// Save to LocalStorage
 function saveState() {
     localStorage.setItem('studentsData', JSON.stringify(students));
-    updateAnalytics();
-    renderTable();
+    localStorage.setItem('gradeDashSettings', JSON.stringify(settings));
+    renderApp();
 }
 
-// Event Listeners
-function setupEventListeners() {
-    addForm.addEventListener('submit', handleAddStudent);
-    
-    // Real-time search
-    searchInput.addEventListener('input', handleSearch);
-    
-    updateForm.addEventListener('submit', handleUpdateStudent);
-    cancelUpdateBtn.addEventListener('click', () => {
-        updateForm.classList.add('hidden');
-        searchInput.value = '';
-        searchResult.classList.add('hidden');
-    });
-
-    downloadBtn.addEventListener('click', handleDownloadData);
-}
-
-// Add Student
-function handleAddStudent(e) {
-    e.preventDefault();
-    const name = nameInput.value.trim();
-    const mark = parseInt(markInput.value);
-
-    if (name && !isNaN(mark)) {
-        students[name] = mark;
-        saveState();
-        
-        nameInput.value = '';
-        markInput.value = '';
-        showToast(`Added ${name} successfully!`);
-    }
-}
-
-// Delete Student
-window.deleteStudent = function(name) {
-    if (confirm(`Are you sure you want to delete ${name}?`)) {
-        delete students[name];
-        saveState();
-        showToast(`Deleted ${name}`);
-        
-        // Clear search if the deleted user was being searched/updated
-        if (updateName.value === name) {
-            updateForm.classList.add('hidden');
-            searchResult.classList.add('hidden');
-        }
-    }
-}
-
-// Prepare Update
-window.prepareUpdate = function(name) {
-    updateForm.classList.remove('hidden');
-    updateName.value = name;
-    updateMark.value = students[name];
-    updateMark.focus();
-    searchResult.classList.add('hidden');
-}
-
-// Handle Update
-function handleUpdateStudent(e) {
-    e.preventDefault();
-    const name = updateName.value;
-    const newMark = parseInt(updateMark.value);
-
-    if (name && !isNaN(newMark) && students.hasOwnProperty(name)) {
-        students[name] = newMark;
-        saveState();
-        updateForm.classList.add('hidden');
-        searchInput.value = '';
-        showToast(`Updated ${name}'s marks to ${newMark}`);
-    }
-}
-
-// Search Student
-function handleSearch(e) {
-    const query = e.target.value.trim().toLowerCase();
-    
-    if (query === '') {
-        searchResult.classList.add('hidden');
-        updateForm.classList.add('hidden');
-        return;
-    }
-
-    // Exact match search as per original python script, but case insensitive for better UX
-    const foundName = Object.keys(students).find(name => name.toLowerCase() === query);
-
-    searchResult.classList.remove('hidden');
-    
-    if (foundName) {
-        searchResult.className = 'result-box';
-        searchResult.innerHTML = `
-            <div>
-                <strong>${foundName}</strong> - ${students[foundName]} Marks
-            </div>
-            <button class="btn btn-primary" onclick="prepareUpdate('${foundName}')">
-                <i class="fas fa-edit"></i> Edit
-            </button>
-        `;
+// --- LOGIC HELPER FUNCTIONS ---
+function hasPassed(mark) {
+    if (settings.qualifyType === 'marks') {
+        return mark >= settings.qualifyValue;
     } else {
-        searchResult.className = 'result-box error';
-        searchResult.innerHTML = `<div><i class="fas fa-exclamation-circle"></i> Student not found</div>`;
-        updateForm.classList.add('hidden');
+        const percentage = (mark / settings.totalMarks) * 100;
+        return percentage >= settings.qualifyValue;
     }
 }
 
-// Render Table
-function renderTable() {
-    const names = Object.keys(students);
+function getSortedStudents() {
+    // Clone array to avoid mutating original order
+    let sorted = [...students];
+    const query = searchInput.value.toLowerCase().trim();
     
-    if (names.length === 0) {
-        tableContainer.classList.add('hidden');
-        emptyState.classList.remove('hidden');
-        studentsBody.innerHTML = '';
-        return;
+    if (query) {
+        sorted = sorted.filter(s => s.name.toLowerCase().includes(query));
     }
 
-    tableContainer.classList.remove('hidden');
+    sorted.sort((a, b) => {
+        switch (currentSort) {
+            case 'entry-asc': return a.id - b.id;
+            case 'entry-desc': return b.id - a.id;
+            case 'marks-desc': return b.mark - a.mark;
+            case 'marks-asc': return a.mark - b.mark;
+            case 'name-asc': return a.name.localeCompare(b.name);
+            case 'name-desc': return b.name.localeCompare(a.name);
+            default: return 0;
+        }
+    });
+    return sorted;
+}
+
+// --- RENDER FUNCTIONS ---
+function renderApp() {
+    const sorted = getSortedStudents();
+    renderTable(sorted);
+    renderMetrics(sorted);
+    renderPodium(); // Podium always based on overall top 3, not search filtered
+}
+
+function renderTable(data) {
+    if (data.length === 0) {
+        studentsBody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+    }
+    
     emptyState.classList.add('hidden');
-
-    studentsBody.innerHTML = names.map(name => {
-        const mark = students[name];
-        const isPass = mark >= 40;
-        const badgeClass = isPass ? 'pass' : 'fail';
-        const statusText = isPass ? 'Passed' : 'Failed';
-
+    studentsBody.innerHTML = data.map(s => {
+        const pass = hasPassed(s.mark);
+        const percentage = ((s.mark / settings.totalMarks) * 100).toFixed(1);
+        
         return `
             <tr>
-                <td style="font-weight: 500;">${name}</td>
-                <td>${mark}</td>
-                <td><span class="badge ${badgeClass}">${statusText}</span></td>
+                <td style="font-weight: 500;">${s.name}</td>
+                <td>${s.mark} <span style="color:var(--text-muted);font-size:11px;">/ ${settings.totalMarks}</span></td>
+                <td>${percentage}%</td>
+                <td><span class="badge ${pass ? 'pass' : 'fail'}">${pass ? 'Qualified' : 'Failed'}</span></td>
                 <td class="actions-cell">
-                    <button class="btn-action edit" onclick="prepareUpdate('${name}')" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-action delete" onclick="deleteStudent('${name}')" title="Delete">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+                    <button class="btn-action edit" onclick="prepareUpdate(${s.id})" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="btn-action delete" onclick="deleteStudent(${s.id})" title="Delete"><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>
         `;
     }).join('');
 }
 
-// Analytics and Extremes
-function updateAnalytics() {
-    const entries = Object.entries(students);
-    const total = entries.length;
+function renderMetrics(data) {
+    document.getElementById('kpi-total').textContent = students.length; // Always show total
     
-    elTotal.textContent = total;
-
-    if (total === 0) {
-        elPassed.textContent = '0';
-        elFailed.textContent = '0';
-        elTop.textContent = '-';
-        elLowest.textContent = '-';
+    if (students.length === 0) {
+        document.getElementById('kpi-passed').textContent = '0';
+        document.getElementById('kpi-failed').textContent = '0';
+        document.getElementById('kpi-average').textContent = '0';
         return;
     }
 
-    let passed = 0;
-    let failed = 0;
-    let topName = entries[0][0];
-    let topMark = entries[0][1];
-    let lowestName = entries[0][0];
-    let lowestMark = entries[0][1];
+    const passed = students.filter(s => hasPassed(s.mark)).length;
+    const failed = students.length - passed;
+    const sum = students.reduce((acc, curr) => acc + curr.mark, 0);
+    const avg = (sum / students.length).toFixed(1);
 
-    for (const [name, mark] of entries) {
-        if (mark >= 40) passed++;
-        else failed++;
-
-        if (mark > topMark) {
-            topMark = mark;
-            topName = name;
-        }
-        if (mark < lowestMark) {
-            lowestMark = mark;
-            lowestName = name;
-        }
-    }
-
-    elPassed.textContent = passed;
-    elFailed.textContent = failed;
-    elTop.innerHTML = `${topName} <span style="color:var(--text-muted);font-size:0.8rem;">(${topMark})</span>`;
-    elLowest.innerHTML = `${lowestName} <span style="color:var(--text-muted);font-size:0.8rem;">(${lowestMark})</span>`;
+    document.getElementById('kpi-passed').textContent = passed;
+    document.getElementById('kpi-failed').textContent = failed;
+    document.getElementById('kpi-average').textContent = avg;
+    
+    document.getElementById('kpi-pass-rate').textContent = `${((passed/students.length)*100).toFixed(0)}% Pass Rate`;
+    document.getElementById('kpi-fail-rate').textContent = `${((failed/students.length)*100).toFixed(0)}% Fail Rate`;
 }
 
-// Download Data Feature
-function handleDownloadData() {
-    const names = Object.keys(students);
-    if (names.length === 0) {
-        showToast('No data to download');
+function renderPodium() {
+    // Always sort by marks descending for podium
+    const topStudents = [...students].sort((a, b) => b.mark - a.mark).slice(0, 3);
+    
+    const updateRank = (rank, data) => {
+        document.getElementById(`rank${rank}-name`).textContent = data ? data.name : '-';
+        document.getElementById(`rank${rank}-mark`).textContent = data ? `${data.mark} pts` : '-';
+    };
+
+    updateRank(1, topStudents[0]);
+    updateRank(2, topStudents[1]);
+    updateRank(3, topStudents[2]);
+}
+
+function populateSettingsForm() {
+    document.getElementById('setting-total-marks').value = settings.totalMarks;
+    document.getElementById('setting-qualify-type').value = settings.qualifyType;
+    document.getElementById('setting-qualify-value').value = settings.qualifyValue;
+}
+
+// --- EVENT LISTENERS ---
+function setupEventListeners() {
+    // Modals
+    btnAddStudent.addEventListener('click', () => addModal.classList.remove('hidden'));
+    btnSettings.addEventListener('click', () => settingsModal.classList.remove('hidden'));
+    
+    closeModals.forEach(btn => {
+        btn.addEventListener('click', () => {
+            addModal.classList.add('hidden');
+            settingsModal.classList.add('hidden');
+        });
+    });
+
+    // Theme
+    btnThemeToggle.addEventListener('click', () => {
+        const current = document.body.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        applyTheme(next);
+    });
+
+    // Forms
+    addForm.addEventListener('submit', handleAdd);
+    settingsForm.addEventListener('submit', handleSettings);
+    updateForm.addEventListener('submit', handleUpdate);
+    document.getElementById('cancel-update').addEventListener('click', () => {
+        updateContainer.classList.add('hidden');
+    });
+
+    // Interactions
+    searchInput.addEventListener('input', renderApp);
+    sortSelect.addEventListener('change', (e) => {
+        currentSort = e.target.value;
+        renderApp();
+    });
+
+    // Export Dropdown
+    btnExportMenu.addEventListener('click', () => exportMenu.classList.toggle('hidden'));
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.export-dropdown')) exportMenu.classList.add('hidden');
+    });
+
+    exportMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const format = e.currentTarget.dataset.format;
+            exportData(format);
+            exportMenu.classList.add('hidden');
+        });
+    });
+}
+
+function applyTheme(theme) {
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    const icon = btnThemeToggle.querySelector('i');
+    icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    btnThemeToggle.innerHTML = `<i class="${icon.className}"></i> ${theme === 'dark' ? 'Light Mode' : 'Dark Mode'}`;
+}
+
+// --- CRUD OPERATIONS ---
+function handleAdd(e) {
+    e.preventDefault();
+    const name = document.getElementById('student-name').value.trim();
+    const mark = parseInt(document.getElementById('student-mark').value);
+
+    if (name && !isNaN(mark)) {
+        const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
+        students.push({ id: newId, name, mark });
+        saveState();
+        addForm.reset();
+        addModal.classList.add('hidden');
+        showToast(`Added ${name} successfully!`);
+    }
+}
+
+let editingId = null;
+window.prepareUpdate = function(id) {
+    const student = students.find(s => s.id === id);
+    if (student) {
+        editingId = id;
+        document.getElementById('update-name').value = student.name;
+        document.getElementById('update-mark').value = student.mark;
+        updateContainer.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function handleUpdate(e) {
+    e.preventDefault();
+    const newMark = parseInt(document.getElementById('update-mark').value);
+    
+    if (!isNaN(newMark) && editingId !== null) {
+        const studentIndex = students.findIndex(s => s.id === editingId);
+        if (studentIndex > -1) {
+            students[studentIndex].mark = newMark;
+            saveState();
+            updateContainer.classList.add('hidden');
+            showToast('Marks updated successfully!');
+            editingId = null;
+        }
+    }
+}
+
+window.deleteStudent = function(id) {
+    if (confirm('Are you sure you want to delete this student?')) {
+        students = students.filter(s => s.id !== id);
+        saveState();
+        showToast('Student deleted.');
+        if (editingId === id) updateContainer.classList.add('hidden');
+    }
+}
+
+function handleSettings(e) {
+    e.preventDefault();
+    settings.totalMarks = parseInt(document.getElementById('setting-total-marks').value);
+    settings.qualifyType = document.getElementById('setting-qualify-type').value;
+    settings.qualifyValue = parseInt(document.getElementById('setting-qualify-value').value);
+    
+    saveState();
+    settingsModal.classList.add('hidden');
+    showToast('Evaluation settings saved!');
+}
+
+// --- EXPORT LOGIC ---
+function exportData(format) {
+    const data = getSortedStudents();
+    if (data.length === 0) {
+        showToast('No data to export!');
         return;
     }
 
-    // Format matching original python script text file: "Name gained X marks \n"
-    let fileContent = "";
-    for (const [name, mark] of Object.entries(students)) {
-        fileContent += `${name} gained ${mark} marks\n`;
+    if (format === 'csv') exportCSV(data);
+    else if (format === 'xlsx') exportExcel(data);
+    else if (format === 'pdf') exportPDF(data);
+}
+
+function exportCSV(data) {
+    let csv = 'Name,Marks,Percentage,Status\n';
+    data.forEach(s => {
+        const pass = hasPassed(s.mark) ? 'Qualified' : 'Failed';
+        const percent = ((s.mark / settings.totalMarks) * 100).toFixed(1) + '%';
+        csv += `"${s.name}",${s.mark},${percent},${pass}\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    downloadBlob(blob, 'student_report.csv');
+}
+
+function exportExcel(data) {
+    if (typeof XLSX === 'undefined') {
+        showToast('Excel library still loading. Please try again in a moment.');
+        return;
     }
 
-    const blob = new Blob([fileContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
+    const exportData = data.map(s => ({
+        "Student Name": s.name,
+        "Marks Scored": s.mark,
+        "Percentage": ((s.mark / settings.totalMarks) * 100).toFixed(1) + '%',
+        "Status": hasPassed(s.mark) ? 'Qualified' : 'Failed'
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+    XLSX.writeFile(workbook, "student_report.xlsx");
+    showToast('Excel downloaded successfully');
+}
+
+function exportPDF(data) {
+    if (typeof html2pdf === 'undefined') {
+        showToast('PDF library still loading. Please try again in a moment.');
+        return;
+    }
+
+    showToast('Generating PDF...');
     
+    // Populate hidden template
+    const template = document.getElementById('print-template');
+    const tbody = document.getElementById('print-body');
+    document.getElementById('print-date').textContent = new Date().toLocaleDateString();
+    
+    tbody.innerHTML = data.map(s => {
+        const pass = hasPassed(s.mark);
+        const percent = ((s.mark / settings.totalMarks) * 100).toFixed(1) + '%';
+        return `
+            <tr>
+                <td style="padding: 8px;">${s.name}</td>
+                <td style="padding: 8px;">${s.mark}</td>
+                <td style="padding: 8px;">${percent}</td>
+                <td style="padding: 8px; color: ${pass ? '#10B981' : '#EF4444'}">${pass ? 'Qualified' : 'Failed'}</td>
+            </tr>
+        `;
+    }).join('');
+
+    template.classList.remove('hidden');
+    
+    const opt = {
+        margin:       1,
+        filename:     'student_report.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(template).save().then(() => {
+        template.classList.add('hidden');
+        showToast('PDF generated successfully!');
+    });
+}
+
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'students.txt';
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
-    
-    // Cleanup
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
-    showToast('Data downloaded as students.txt');
+    showToast(`${filename} downloaded successfully`);
 }
 
-// Toast Notification
+// Toast
 function showToast(message) {
     const toast = document.getElementById('toast');
-    const toastMsg = document.getElementById('toast-message');
-    
-    toastMsg.textContent = message;
-    toast.classList.add('show');
+    document.getElementById('toast-message').textContent = message;
     toast.classList.remove('hidden');
-    
     setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.classList.add('hidden'), 300);
+        toast.classList.add('hidden');
     }, 3000);
 }
 
-// Start the app
+// Start
 init();
