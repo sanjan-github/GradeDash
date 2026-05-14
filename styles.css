@@ -545,28 +545,12 @@ body {
 .sort-control {
     display: flex;
     align-items: center;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    padding: 0 12px;
-    background: var(--bg-main);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    gap: 12px;
+    width: 220px;
 }
 
-.sort-control:focus-within {
-    border-color: var(--primary-color);
-    box-shadow: var(--shadow-glow);
-}
-
-.sort-control select {
-    border: none;
-    background: transparent;
-    padding: 8px 32px 8px 8px !important;
-    outline: none;
-    color: var(--text-primary);
-    cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230f9b0f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-position: right 8px center;
-    box-shadow: none;
+.sort-control i {
+    color: var(--text-muted);
 }
 
 .export-dropdown { position: relative; }
@@ -809,7 +793,7 @@ label {
     margin-bottom: 8px;
 }
 
-input, select {
+input {
     width: 100%;
     height: 44px; /* Minimum 44px touch target */
     padding: 0 16px;
@@ -821,29 +805,100 @@ input, select {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-input:focus, select:focus {
+input:focus {
     border-color: var(--primary-color);
     box-shadow: var(--shadow-glow); /* Glowing focus state */
 }
 
-/* Premium Select Dropdown using 60:30:10 */
-select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230f9b0f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 16px center;
-    background-size: 16px;
-    padding-right: 40px !important;
-    background-color: var(--bg-main); /* 60% */
-    border: 1px solid var(--bg-card); /* 30% */
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
-    cursor: pointer;
+/* Custom Select Implementation (60:30:10 rule) */
+select.custom-select-hidden {
+    display: none !important;
 }
 
-[data-theme="dark"] select {
-    border: 1px solid var(--border-color); /* Subtle border in dark mode */
+.custom-select {
+    position: relative;
+    user-select: none;
+    width: 100%;
+}
+
+.custom-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-main); /* 60% base */
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] .custom-select-trigger {
+    border: 1px solid var(--border-color);
+}
+
+.custom-select-trigger:hover,
+.custom-select.open .custom-select-trigger {
+    border-color: var(--primary-color);
+}
+
+.custom-select.open .custom-select-trigger {
+    box-shadow: var(--shadow-glow);
+}
+
+.custom-select-icon {
+    color: var(--primary-color); /* 10% accent */
+    transition: transform 0.3s;
+    font-size: 12px;
+}
+
+.custom-select.open .custom-select-icon {
+    transform: rotate(180deg);
+}
+
+.custom-select-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--bg-card); /* 30% surface */
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    z-index: 50;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.custom-select.open .custom-select-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.custom-option {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.custom-option:hover {
+    background: var(--bg-main);
+}
+
+.custom-option.selected {
+    background: var(--primary-light);
+    color: var(--primary-color);
+    font-weight: 600;
 }
 
 small { color: var(--text-muted); font-size: 11px; }
@@ -1054,9 +1109,6 @@ small { color: var(--text-muted); font-size: 11px; }
     }
     .sort-control {
         flex: 1 1 220px;
-        min-width: 0;
-    }
-    .sort-control select {
         min-width: 0;
     }
     .export-dropdown,

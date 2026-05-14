@@ -131,6 +131,77 @@ function getSortedStudents() {
     return sorted;
 }
 
+// --- CUSTOM SELECT COMPONENT ---
+function initCustomSelects() {
+    document.querySelectorAll('select').forEach(select => {
+        if (!select.classList.contains('custom-select-hidden')) {
+            select.classList.add('custom-select-hidden');
+        }
+        
+        // Remove existing custom select if re-rendering
+        if (select.nextElementSibling && select.nextElementSibling.classList.contains('custom-select')) {
+            select.nextElementSibling.remove();
+        }
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'custom-select';
+        
+        const trigger = document.createElement('div');
+        trigger.className = 'custom-select-trigger';
+        
+        const textSpan = document.createElement('span');
+        textSpan.className = 'custom-select-text';
+        
+        const selectedOption = select.options[select.selectedIndex];
+        textSpan.textContent = selectedOption ? selectedOption.textContent : 'Select...';
+        
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-chevron-down custom-select-icon';
+        
+        trigger.appendChild(textSpan);
+        trigger.appendChild(icon);
+        
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'custom-select-options';
+        
+        Array.from(select.options).forEach(option => {
+            if (option.disabled && option.value === "") return;
+            const optDiv = document.createElement('div');
+            optDiv.className = 'custom-option';
+            if (option.selected) optDiv.classList.add('selected');
+            optDiv.textContent = option.textContent;
+            optDiv.dataset.value = option.value;
+            
+            optDiv.addEventListener('click', (e) => {
+                e.stopPropagation();
+                textSpan.textContent = option.textContent;
+                optionsDiv.querySelectorAll('.custom-option').forEach(el => el.classList.remove('selected'));
+                optDiv.classList.add('selected');
+                select.value = option.value;
+                select.dispatchEvent(new Event('change'));
+                wrapper.classList.remove('open');
+            });
+            optionsDiv.appendChild(optDiv);
+        });
+        
+        wrapper.appendChild(trigger);
+        wrapper.appendChild(optionsDiv);
+        
+        select.parentNode.insertBefore(wrapper, select.nextSibling);
+        
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = wrapper.classList.contains('open');
+            document.querySelectorAll('.custom-select').forEach(el => el.classList.remove('open'));
+            if (!isOpen) wrapper.classList.add('open');
+        });
+    });
+}
+
+document.addEventListener('click', () => {
+    document.querySelectorAll('.custom-select').forEach(el => el.classList.remove('open'));
+});
+
 // --- RENDER FUNCTIONS ---
 function renderForms() {
     // By Student form
@@ -179,6 +250,8 @@ function renderForms() {
         <th style="padding: 10px;">Status</th>
     `;
     printHeadRow.innerHTML = printHeadersHTML;
+    
+    initCustomSelects();
 }
 
 function renderSubjectManagement() {
@@ -281,8 +354,17 @@ function renderPodium() {
 }
 
 function populateSettingsForm() {
-    document.getElementById('setting-qualify-type').value = settings.qualifyType;
+    const typeSelect = document.getElementById('setting-qualify-type');
+    typeSelect.value = settings.qualifyType;
     document.getElementById('setting-qualify-value').value = settings.qualifyValue;
+    
+    if (typeSelect.nextElementSibling && typeSelect.nextElementSibling.classList.contains('custom-select')) {
+        const textSpan = typeSelect.nextElementSibling.querySelector('.custom-select-text');
+        textSpan.textContent = typeSelect.options[typeSelect.selectedIndex].textContent;
+        typeSelect.nextElementSibling.querySelectorAll('.custom-option').forEach(opt => {
+            opt.classList.toggle('selected', opt.dataset.value === settings.qualifyType);
+        });
+    }
 }
 
 // --- EVENT LISTENERS ---
