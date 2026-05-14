@@ -19,9 +19,14 @@
     <div class="layout-wrapper">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
-            <div class="logo">
-                <i class="fas fa-graduation-cap"></i>
-                <span>GradeDash</span>
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>GradeDash</span>
+                </div>
+                <button type="button" class="sidebar-close-btn" id="btn-sidebar-close" aria-label="Close menu">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             
             <nav class="menu">
@@ -31,8 +36,10 @@
                 <div class="menu-section mt-4">GENERAL</div>
                 <a href="#" class="menu-item menu-item-settings" id="btn-settings" title="Settings"><i class="fas fa-sliders"></i> <span>Settings</span></a>
                 <a href="#" class="menu-item menu-item-theme" id="btn-theme-toggle" title="Dark Mode"><i class="fas fa-moon"></i> <span>Dark Mode</span></a>
+                <a href="#" class="menu-item menu-item-templates" id="btn-templates" title="Templates"><i class="fas fa-layer-group"></i> <span>Templates</span></a>
             </nav>
         </aside>
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -44,7 +51,10 @@
                 </div>
                 
                 <div class="header-actions">
-                    <!-- Notifications and emails removed as they are unused -->
+                    <button type="button" class="sidebar-toggle-btn" id="btn-sidebar-toggle" aria-label="Toggle menu">
+                        <i class="fas fa-bars"></i>
+                        <span>Menu</span>
+                    </button>
                 </div>
             </header>
 
@@ -284,6 +294,36 @@
                 </div>
                 <button type="submit" class="btn btn-primary w-100 mt-4">Save Settings</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Templates Modal -->
+    <div class="modal-overlay hidden" id="templates-modal">
+        <div class="modal-card modal-card-template">
+            <div class="modal-header template-modal-header">
+                <div>
+                    <span class="template-eyebrow">Board Templates</span>
+                    <h2>Pick a ready-made marks template</h2>
+                    <p>Choose 10th or Intermediate first, then pick a state and stream.</p>
+                </div>
+                <button class="close-modal" aria-label="Close templates"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="template-summary-row">
+                <div id="template-current-summary" class="template-current-summary"></div>
+            </div>
+
+            <div class="template-toolbar">
+                <div class="template-search-shell">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="template-search" placeholder="Search a state or board">
+                </div>
+                <div class="template-filter-row" id="template-filters"></div>
+            </div>
+
+            <div class="template-library" id="template-library">
+                <!-- Template sections injected by JS -->
+            </div>
         </div>
     </div>
 
