@@ -24,7 +24,7 @@ Runs locally in your browser. Saves data in the browser's local storage.
 - **Leaderboard:** Shows the top 3 students based on total marks.
 - **Settings:** 
   - Manage the subject list.
-  - Set total maximum marks per subject.
+  - Set individual maximum marks for each subject.
   - Set passing rules (require a minimum total mark or a minimum overall percentage).
 - **Export Data:** Download the table as PDF, Excel (.xlsx), or Word (.docx). Exports dynamically include all subject columns.
 - **Theme:** Toggle between light and dark modes. Features a custom black-to-green gradient UI.

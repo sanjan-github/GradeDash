@@ -259,21 +259,18 @@
             </div>
             <form id="settings-form">
                 <div class="form-group" style="margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
-                    <label>Manage Subjects</label>
+                    <label>Manage Subjects & Max Marks</label>
                     <div style="display: flex; gap: 8px;">
-                        <input type="text" id="new-subject-name" placeholder="e.g. Mathematics">
+                        <input type="text" id="new-subject-name" placeholder="Subject Name" style="flex: 2;">
+                        <input type="number" id="new-subject-max" placeholder="Max" value="100" min="1" style="flex: 1;">
                         <button type="button" id="btn-add-subject" class="btn btn-outline" style="flex: none;">Add</button>
                     </div>
-                    <div id="subjects-list" style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 4px;">
+                    <div id="subjects-list" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
                         <!-- Subject tags injected by JS -->
                     </div>
+                    <small style="display: block; margin-top: 8px;">Used to calculate percentages for each subject and total</small>
                 </div>
                 
-                <div class="form-group mt-4">
-                    <label>Total Maximum Marks (Per Subject)</label>
-                    <input type="number" id="setting-total-marks" required min="1" value="100">
-                    <small>Used to calculate percentages for each subject and total</small>
-                </div>
                 <div class="form-group mt-4">
                     <label>Qualifying Type</label>
                     <select id="setting-qualify-type">

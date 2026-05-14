@@ -1,11 +1,17 @@
 // --- STATE MANAGEMENT ---
 // Default Settings
 let settings = JSON.parse(localStorage.getItem('gradeDashSettings')) || {
-    totalMarks: 100, // per subject
+    subjectMaxMarks: { 'Math': 100, 'Science': 100, 'English': 100 },
     qualifyType: 'percentage', // 'marks' or 'percentage'
     qualifyValue: 40,
     subjects: ['Math', 'Science', 'English']
 };
+
+if (settings.totalMarks !== undefined) {
+    settings.subjectMaxMarks = {};
+    settings.subjects.forEach(sub => settings.subjectMaxMarks[sub] = settings.totalMarks);
+    delete settings.totalMarks;
+}
 
 let rawStudents = JSON.parse(localStorage.getItem('studentsData')) || [];
 let students = [];
@@ -86,7 +92,7 @@ function getTotalMark(student) {
 }
 
 function getMaxTotalMarks() {
-    return settings.subjects.length * settings.totalMarks;
+    return settings.subjects.reduce((sum, sub) => sum + (settings.subjectMaxMarks[sub] || 100), 0);
 }
 
 function hasPassed(student) {
@@ -130,8 +136,8 @@ function renderForms() {
     // By Student form
     const studentInputsHTML = settings.subjects.map(sub => `
         <div class="form-group" style="flex: 1; min-width: 100px; margin-bottom: 0;">
-            <label style="margin-bottom: 6px;">${sub}</label>
-            <input type="number" class="student-subject-input" data-subject="${sub}" required min="0" placeholder="0">
+            <label style="margin-bottom: 6px;">${sub} (Max ${settings.subjectMaxMarks[sub] || 100})</label>
+            <input type="number" class="student-subject-input" data-subject="${sub}" required min="0" max="${settings.subjectMaxMarks[sub] || 100}" placeholder="0">
         </div>
     `).join('');
     
@@ -177,11 +183,22 @@ function renderForms() {
 
 function renderSubjectManagement() {
     subjectsListContainer.innerHTML = settings.subjects.map(sub => `
-        <span class="subject-tag">
-            ${sub}
-            <button type="button" onclick="deleteSubject('${sub}')"><i class="fas fa-times"></i></button>
-        </span>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="subject-tag" style="flex: 1; margin: 0; display: flex; justify-content: space-between;">
+                ${sub}
+                <button type="button" onclick="deleteSubject('${sub}')"><i class="fas fa-times"></i></button>
+            </span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <label style="margin: 0; font-size: 11px;">Max:</label>
+                <input type="number" class="subject-max-mark-input" data-subject="${sub}" value="${settings.subjectMaxMarks[sub] || 100}" min="1" style="width: 70px; height: 32px;" onchange="updateSubjectMax('${sub}', this.value)">
+            </div>
+        </div>
     `).join('');
+}
+
+window.updateSubjectMax = function(sub, val) {
+    settings.subjectMaxMarks[sub] = parseInt(val) || 100;
+    saveState();
 }
 
 function renderApp() {
@@ -264,7 +281,6 @@ function renderPodium() {
 }
 
 function populateSettingsForm() {
-    document.getElementById('setting-total-marks').value = settings.totalMarks;
     document.getElementById('setting-qualify-type').value = settings.qualifyType;
     document.getElementById('setting-qualify-value').value = settings.qualifyValue;
 }
@@ -326,10 +342,11 @@ function setupEventListeners() {
             return;
         }
 
-        subjectStudentsList.innerHTML = students.map(s => `
+        const maxMark = settings.subjectMaxMarks[sub] || 100;
+        subjectStudentsList.innerHTML = `<p style="margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Max Marks: ${maxMark}</p>` + students.map(s => `
             <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
                 <label style="margin: 0; width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${s.name}</label>
-                <input type="number" data-id="${s.id}" class="subject-student-mark-input" value="${s.marks && s.marks[sub] !== undefined ? s.marks[sub] : ''}" required min="0" placeholder="0" style="width: 80px; height: 32px;">
+                <input type="number" data-id="${s.id}" class="subject-student-mark-input" value="${s.marks && s.marks[sub] !== undefined ? s.marks[sub] : ''}" required min="0" max="${maxMark}" placeholder="0" style="width: 80px; height: 32px;">
             </div>
         `).join('');
     });
@@ -343,10 +360,15 @@ function setupEventListeners() {
     // Subjects
     btnAddSubject.addEventListener('click', () => {
         const input = document.getElementById('new-subject-name');
+        const maxInput = document.getElementById('new-subject-max');
         const val = input.value.trim();
+        const maxVal = parseInt(maxInput.value) || 100;
+        
         if (val && !settings.subjects.includes(val)) {
             settings.subjects.push(val);
+            settings.subjectMaxMarks[val] = maxVal;
             input.value = '';
+            maxInput.value = '100';
             
             // Give existing students 0 for new subject
             students.forEach(s => {
@@ -415,9 +437,19 @@ function handleAddStudent(e) {
     
     let marks = {};
     const inputs = document.querySelectorAll('.student-subject-input');
+    let hasError = false;
     inputs.forEach(input => {
-        marks[input.dataset.subject] = parseInt(input.value) || 0;
+        const sub = input.dataset.subject;
+        const val = parseInt(input.value) || 0;
+        const max = settings.subjectMaxMarks[sub] || 100;
+        if (val > max) {
+            showToast(`Error: ${sub} marks cannot exceed ${max}`);
+            hasError = true;
+        }
+        marks[sub] = val;
     });
+
+    if (hasError) return;
 
     if (name) {
         const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
@@ -433,8 +465,20 @@ function handleAddSubjectMarks(e) {
     e.preventDefault();
     const sub = subjectSelect.value;
     if (!sub) return;
+    const max = settings.subjectMaxMarks[sub] || 100;
 
     const inputs = document.querySelectorAll('.subject-student-mark-input');
+    let hasError = false;
+    inputs.forEach(input => {
+        const val = parseInt(input.value) || 0;
+        if (val > max) {
+            showToast(`Error: marks for ${sub} cannot exceed ${max}`);
+            hasError = true;
+        }
+    });
+    
+    if (hasError) return;
+
     inputs.forEach(input => {
         const id = parseInt(input.dataset.id);
         const val = parseInt(input.value) || 0;
@@ -458,8 +502,8 @@ window.prepareUpdate = function(id) {
         
         updateFormInputs.innerHTML = settings.subjects.map(sub => `
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <label style="margin: 0;">${sub}</label>
-                <input type="number" class="update-subject-input" data-subject="${sub}" required min="0" value="${student.marks && student.marks[sub] !== undefined ? student.marks[sub] : 0}" style="width: 100px;">
+                <label style="margin: 0;">${sub} (Max: ${settings.subjectMaxMarks[sub] || 100})</label>
+                <input type="number" class="update-subject-input" data-subject="${sub}" required min="0" max="${settings.subjectMaxMarks[sub] || 100}" value="${student.marks && student.marks[sub] !== undefined ? student.marks[sub] : 0}" style="width: 100px;">
             </div>
         `).join('');
         
@@ -474,10 +518,21 @@ function handleUpdate(e) {
         const studentIndex = students.findIndex(s => s.id === editingId);
         if (studentIndex > -1) {
             const inputs = document.querySelectorAll('.update-subject-input');
+            let hasError = false;
             let newMarks = { ...students[studentIndex].marks };
             inputs.forEach(input => {
-                newMarks[input.dataset.subject] = parseInt(input.value) || 0;
+                const sub = input.dataset.subject;
+                const val = parseInt(input.value) || 0;
+                const max = settings.subjectMaxMarks[sub] || 100;
+                if (val > max) {
+                    showToast(`Error: ${sub} marks cannot exceed ${max}`);
+                    hasError = true;
+                }
+                newMarks[sub] = val;
             });
+            
+            if (hasError) return;
+            
             students[studentIndex].marks = newMarks;
             saveState();
             updateContainer.classList.add('hidden');
@@ -498,7 +553,6 @@ window.deleteStudent = function(id) {
 
 function handleSettings(e) {
     e.preventDefault();
-    settings.totalMarks = parseInt(document.getElementById('setting-total-marks').value);
     settings.qualifyType = document.getElementById('setting-qualify-type').value;
     settings.qualifyValue = parseInt(document.getElementById('setting-qualify-value').value);
     
