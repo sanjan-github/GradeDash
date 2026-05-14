@@ -104,19 +104,43 @@
                 </div>
 
                 <!-- Quick Add Row -->
-                <div class="card quick-add-card" style="margin-bottom: 24px; padding: 20px 24px;">
-                    <form id="add-student-form" style="display: flex; gap: 16px; align-items: flex-end; margin: 0;">
-                        <div class="form-group" style="margin-bottom: 0; flex: 2;">
-                            <label style="margin-bottom: 6px;">Student Name</label>
-                            <input type="text" id="student-name" required placeholder="e.g. John Doe" autocomplete="off">
+                <div class="card quick-add-card" style="margin-bottom: 24px;">
+                    <div class="tabs">
+                        <button class="tab-btn active" id="tab-by-student">By Student</button>
+                        <button class="tab-btn" id="tab-by-subject">By Subject</button>
+                    </div>
+                    
+                    <!-- By Student Form -->
+                    <form id="add-student-form">
+                        <div class="dynamic-subjects-grid" id="student-form-inputs">
+                            <div class="form-group" style="flex: 2;">
+                                <label style="margin-bottom: 6px;">Student Name</label>
+                                <input type="text" id="student-name" required placeholder="e.g. John Doe" autocomplete="off">
+                            </div>
+                            <!-- Subject inputs will be injected here by JS -->
+                            <button type="submit" class="btn btn-primary" style="height: 44px; padding: 0 32px; flex: none;">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
                         </div>
-                        <div class="form-group" style="margin-bottom: 0; flex: 1;">
-                            <label style="margin-bottom: 6px;">Marks Scored</label>
-                            <input type="number" id="student-mark" required min="0" placeholder="e.g. 85">
+                    </form>
+
+                    <!-- By Subject Form -->
+                    <form id="add-subject-form" class="hidden">
+                        <div class="dynamic-subjects-grid" style="align-items: flex-start;">
+                            <div class="form-group" style="flex: 1;">
+                                <label style="margin-bottom: 6px;">Select Subject</label>
+                                <select id="subject-select" required>
+                                    <!-- Options injected by JS -->
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 3; display: flex; flex-direction: column; gap: 8px;" id="subject-students-list">
+                                <!-- Student inputs injected by JS -->
+                                <p style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">Select a subject to enter marks for all students.</p>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="height: 44px; padding: 0 32px; flex: none;">
+                                <i class="fas fa-save"></i> Save Marks
+                            </button>
                         </div>
-                        <button type="submit" class="btn btn-primary" style="height: 40px; padding: 0 32px;">
-                            <i class="fas fa-plus"></i> Add
-                        </button>
                     </form>
                 </div>
 
@@ -155,12 +179,8 @@
                         <div class="table-container">
                             <table id="students-table">
                                 <thead>
-                                    <tr>
-                                        <th>Student Details</th>
-                                        <th>Marks</th>
-                                        <th>Percentage</th>
-                                        <th>Status</th>
-                                        <th class="text-right">Actions</th>
+                                    <tr id="table-head-row">
+                                        <!-- Populated by JS -->
                                     </tr>
                                 </thead>
                                 <tbody id="students-body">
@@ -215,9 +235,8 @@
                                     <label>Student Name</label>
                                     <input type="text" id="update-name" disabled class="disabled-input">
                                 </div>
-                                <div class="form-group">
-                                    <label>New Marks</label>
-                                    <input type="number" id="update-mark" required min="0">
+                                <div id="update-form-inputs" class="form-group">
+                                    <!-- Subject inputs injected by JS -->
                                 </div>
                                 <div class="btn-group">
                                     <button type="submit" class="btn btn-primary">Save</button>
@@ -239,16 +258,27 @@
                 <button class="close-modal"><i class="fas fa-times"></i></button>
             </div>
             <form id="settings-form">
-                <div class="form-group">
-                    <label>Total Maximum Marks</label>
+                <div class="form-group" style="margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                    <label>Manage Subjects</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="new-subject-name" placeholder="e.g. Mathematics">
+                        <button type="button" id="btn-add-subject" class="btn btn-outline" style="flex: none;">Add</button>
+                    </div>
+                    <div id="subjects-list" style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 4px;">
+                        <!-- Subject tags injected by JS -->
+                    </div>
+                </div>
+                
+                <div class="form-group mt-4">
+                    <label>Total Maximum Marks (Per Subject)</label>
                     <input type="number" id="setting-total-marks" required min="1" value="100">
-                    <small>Used to calculate percentages</small>
+                    <small>Used to calculate percentages for each subject and total</small>
                 </div>
                 <div class="form-group mt-4">
                     <label>Qualifying Type</label>
                     <select id="setting-qualify-type">
-                        <option value="marks">By Minimum Marks</option>
-                        <option value="percentage">By Minimum Percentage</option>
+                        <option value="marks">By Minimum Marks (Total)</option>
+                        <option value="percentage">By Minimum Percentage (Overall)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -267,11 +297,8 @@
             <p style="text-align: center;" id="print-date"></p>
             <table style="width: 100%; border-collapse: collapse; margin-top: 20px;" border="1">
                 <thead>
-                    <tr style="background-color: #f3f4f6;">
-                        <th style="padding: 10px;">Name</th>
-                        <th style="padding: 10px;">Marks</th>
-                        <th style="padding: 10px;">Percentage</th>
-                        <th style="padding: 10px;">Status</th>
+                    <tr style="background-color: #f3f4f6;" id="print-head-row">
+                        <!-- Populated by JS -->
                     </tr>
                 </thead>
                 <tbody id="print-body"></tbody>

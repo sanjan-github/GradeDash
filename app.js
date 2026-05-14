@@ -1,25 +1,26 @@
 // --- STATE MANAGEMENT ---
 // Default Settings
 let settings = JSON.parse(localStorage.getItem('gradeDashSettings')) || {
-    totalMarks: 100,
+    totalMarks: 100, // per subject
     qualifyType: 'percentage', // 'marks' or 'percentage'
-    qualifyValue: 40
+    qualifyValue: 40,
+    subjects: ['Math', 'Science', 'English']
 };
 
-// Students Data Migration & Loading
-// Previous version used an object { "Name": Mark }. We need an array for sorting by entry order.
-let rawStudents = JSON.parse(localStorage.getItem('studentsData')) || {};
+let rawStudents = JSON.parse(localStorage.getItem('studentsData')) || [];
 let students = [];
 
-if (Array.isArray(rawStudents)) {
-    students = rawStudents;
-} else {
-    // Migration from old dict structure
-    let id = 1;
-    for (const [name, mark] of Object.entries(rawStudents)) {
-        students.push({ id: id++, name, mark });
-    }
+// Migration logic
+if (rawStudents.length > 0 && typeof rawStudents[0].mark !== 'undefined') {
+    students = rawStudents.map(s => {
+        let marks = {};
+        settings.subjects.forEach(sub => marks[sub] = 0);
+        if (settings.subjects.length > 0) marks[settings.subjects[0]] = s.mark;
+        return { id: s.id, name: s.name, marks };
+    });
     localStorage.setItem('studentsData', JSON.stringify(students));
+} else {
+    students = rawStudents;
 }
 
 let currentSort = 'entry-desc';
@@ -36,23 +37,37 @@ const btnSettings = document.getElementById('btn-settings');
 const btnThemeToggle = document.getElementById('btn-theme-toggle');
 const btnExportMenu = document.getElementById('btn-export-menu');
 const exportMenu = document.getElementById('export-menu');
+const btnAddSubject = document.getElementById('btn-add-subject');
 
-// Forms
-const addForm = document.getElementById('add-student-form');
+// Forms & Tabs
+const addStudentForm = document.getElementById('add-student-form');
+const addSubjectForm = document.getElementById('add-subject-form');
 const settingsForm = document.getElementById('settings-form');
 const updateForm = document.getElementById('update-form');
 const searchInput = document.getElementById('global-search');
 const sortSelect = document.getElementById('sort-select');
 
-// Table & Metrics
+const tabByStudent = document.getElementById('tab-by-student');
+const tabBySubject = document.getElementById('tab-by-subject');
+
+// Containers
 const studentsBody = document.getElementById('students-body');
 const emptyState = document.getElementById('empty-state');
 const updateContainer = document.getElementById('update-container');
+const studentFormInputs = document.getElementById('student-form-inputs');
+const subjectSelect = document.getElementById('subject-select');
+const subjectStudentsList = document.getElementById('subject-students-list');
+const subjectsListContainer = document.getElementById('subjects-list');
+const tableHeadRow = document.getElementById('table-head-row');
+const updateFormInputs = document.getElementById('update-form-inputs');
+const printHeadRow = document.getElementById('print-head-row');
 
 // --- INITIALIZATION ---
 function init() {
     applyTheme(localStorage.getItem('theme') || 'light');
     populateSettingsForm();
+    renderSubjectManagement();
+    renderForms();
     renderApp();
     setupEventListeners();
 }
@@ -60,21 +75,33 @@ function init() {
 function saveState() {
     localStorage.setItem('studentsData', JSON.stringify(students));
     localStorage.setItem('gradeDashSettings', JSON.stringify(settings));
+    renderForms();
     renderApp();
 }
 
 // --- LOGIC HELPER FUNCTIONS ---
-function hasPassed(mark) {
+function getTotalMark(student) {
+    if (!student.marks) return 0;
+    return Object.values(student.marks).reduce((sum, val) => sum + (val || 0), 0);
+}
+
+function getMaxTotalMarks() {
+    return settings.subjects.length * settings.totalMarks;
+}
+
+function hasPassed(student) {
+    const total = getTotalMark(student);
     if (settings.qualifyType === 'marks') {
-        return mark >= settings.qualifyValue;
+        return total >= settings.qualifyValue;
     } else {
-        const percentage = (mark / settings.totalMarks) * 100;
+        const max = getMaxTotalMarks();
+        if (max === 0) return true;
+        const percentage = (total / max) * 100;
         return percentage >= settings.qualifyValue;
     }
 }
 
 function getSortedStudents() {
-    // Clone array to avoid mutating original order
     let sorted = [...students];
     const query = searchInput.value.toLowerCase().trim();
     
@@ -83,11 +110,13 @@ function getSortedStudents() {
     }
 
     sorted.sort((a, b) => {
+        const aTotal = getTotalMark(a);
+        const bTotal = getTotalMark(b);
         switch (currentSort) {
             case 'entry-asc': return a.id - b.id;
             case 'entry-desc': return b.id - a.id;
-            case 'marks-desc': return b.mark - a.mark;
-            case 'marks-asc': return a.mark - b.mark;
+            case 'marks-desc': return bTotal - aTotal;
+            case 'marks-asc': return aTotal - bTotal;
             case 'name-asc': return a.name.localeCompare(b.name);
             case 'name-desc': return b.name.localeCompare(a.name);
             default: return 0;
@@ -97,11 +126,69 @@ function getSortedStudents() {
 }
 
 // --- RENDER FUNCTIONS ---
+function renderForms() {
+    // By Student form
+    const studentInputsHTML = settings.subjects.map(sub => `
+        <div class="form-group" style="flex: 1; min-width: 100px; margin-bottom: 0;">
+            <label style="margin-bottom: 6px;">${sub}</label>
+            <input type="number" class="student-subject-input" data-subject="${sub}" required min="0" placeholder="0">
+        </div>
+    `).join('');
+    
+    // Inject before the add button
+    const btnHTML = `<button type="submit" class="btn btn-primary" style="height: 44px; padding: 0 32px; flex: none;"><i class="fas fa-plus"></i> Add</button>`;
+    
+    studentFormInputs.innerHTML = `
+        <div class="form-group" style="flex: 2; min-width: 150px; margin-bottom: 0;">
+            <label style="margin-bottom: 6px;">Student Name</label>
+            <input type="text" id="student-name" required placeholder="e.g. John Doe" autocomplete="off">
+        </div>
+        ${studentInputsHTML}
+        ${btnHTML}
+    `;
+
+    // Subject dropdown
+    subjectSelect.innerHTML = `<option value="" disabled selected>Choose...</option>` + 
+        settings.subjects.map(sub => `<option value="${sub}">${sub}</option>`).join('');
+        
+    subjectStudentsList.innerHTML = `<p style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">Select a subject to enter marks for all students.</p>`;
+    
+    // Table Headers
+    const headersHTML = `
+        <th>Student Details</th>
+        ${settings.subjects.map(sub => `<th>${sub}</th>`).join('')}
+        <th>Total Marks</th>
+        <th>Percentage</th>
+        <th>Status</th>
+        <th class="text-right">Actions</th>
+    `;
+    tableHeadRow.innerHTML = headersHTML;
+    
+    // Print Headers
+    const printHeadersHTML = `
+        <th style="padding: 10px;">Name</th>
+        ${settings.subjects.map(sub => `<th style="padding: 10px;">${sub}</th>`).join('')}
+        <th style="padding: 10px;">Total</th>
+        <th style="padding: 10px;">%</th>
+        <th style="padding: 10px;">Status</th>
+    `;
+    printHeadRow.innerHTML = printHeadersHTML;
+}
+
+function renderSubjectManagement() {
+    subjectsListContainer.innerHTML = settings.subjects.map(sub => `
+        <span class="subject-tag">
+            ${sub}
+            <button type="button" onclick="deleteSubject('${sub}')"><i class="fas fa-times"></i></button>
+        </span>
+    `).join('');
+}
+
 function renderApp() {
     const sorted = getSortedStudents();
     renderTable(sorted);
     renderMetrics(sorted);
-    renderPodium(); // Podium always based on overall top 3, not search filtered
+    renderPodium();
 }
 
 function renderTable(data) {
@@ -112,14 +199,23 @@ function renderTable(data) {
     }
     
     emptyState.classList.add('hidden');
+    
+    const maxTotal = getMaxTotalMarks();
+    
     studentsBody.innerHTML = data.map(s => {
-        const pass = hasPassed(s.mark);
-        const percentage = ((s.mark / settings.totalMarks) * 100).toFixed(1);
+        const pass = hasPassed(s);
+        const total = getTotalMark(s);
+        const percentage = maxTotal === 0 ? "0.0" : ((total / maxTotal) * 100).toFixed(1);
+        
+        const subjectCells = settings.subjects.map(sub => `
+            <td data-label="${sub}">${s.marks && s.marks[sub] !== undefined ? s.marks[sub] : '-'}</td>
+        `).join('');
         
         return `
             <tr>
                 <td data-label="Student" style="font-weight: 500;">${s.name}</td>
-                <td data-label="Marks">${s.mark} <span style="color:var(--text-muted);font-size:11px;">/ ${settings.totalMarks}</span></td>
+                ${subjectCells}
+                <td data-label="Total Marks">${total} <span style="color:var(--text-muted);font-size:11px;">/ ${maxTotal}</span></td>
                 <td data-label="Percentage">${percentage}%</td>
                 <td data-label="Status"><span class="badge ${pass ? 'pass' : 'fail'}">${pass ? 'Qualified' : 'Failed'}</span></td>
                 <td data-label="Actions" class="actions-cell">
@@ -132,7 +228,7 @@ function renderTable(data) {
 }
 
 function renderMetrics(data) {
-    document.getElementById('kpi-total').textContent = students.length; // Always show total
+    document.getElementById('kpi-total').textContent = students.length;
     
     if (students.length === 0) {
         document.getElementById('kpi-passed').textContent = '0';
@@ -141,26 +237,25 @@ function renderMetrics(data) {
         return;
     }
 
-    const passed = students.filter(s => hasPassed(s.mark)).length;
+    const passed = students.filter(s => hasPassed(s)).length;
     const failed = students.length - passed;
-    const sum = students.reduce((acc, curr) => acc + curr.mark, 0);
+    const sum = students.reduce((acc, curr) => acc + getTotalMark(curr), 0);
     const avg = (sum / students.length).toFixed(1);
 
     document.getElementById('kpi-passed').textContent = passed;
     document.getElementById('kpi-failed').textContent = failed;
     document.getElementById('kpi-average').textContent = avg;
     
-    document.getElementById('kpi-pass-rate').textContent = `${((passed/students.length)*100).toFixed(0)}% Pass Rate`;
-    document.getElementById('kpi-fail-rate').textContent = `${((failed/students.length)*100).toFixed(0)}% Fail Rate`;
+    document.getElementById('kpi-pass-rate').textContent = `${((passed / students.length) * 100).toFixed(0)}% Pass Rate`;
+    document.getElementById('kpi-fail-rate').textContent = `${((failed / students.length) * 100).toFixed(0)}% Fail Rate`;
 }
 
 function renderPodium() {
-    // Always sort by marks descending for podium
-    const topStudents = [...students].sort((a, b) => b.mark - a.mark).slice(0, 3);
+    const topStudents = [...students].sort((a, b) => getTotalMark(b) - getTotalMark(a)).slice(0, 3);
     
     const updateRank = (rank, data) => {
         document.getElementById(`rank${rank}-name`).textContent = data ? data.name : '-';
-        document.getElementById(`rank${rank}-mark`).textContent = data ? `${data.mark} pts` : '-';
+        document.getElementById(`rank${rank}-mark`).textContent = data ? `${getTotalMark(data)} pts` : '-';
     };
 
     updateRank(1, topStudents[0]);
@@ -203,12 +298,65 @@ function setupEventListeners() {
         applyTheme(next);
     });
 
+    // Tabs
+    tabByStudent.addEventListener('click', () => {
+        tabByStudent.classList.add('active');
+        tabBySubject.classList.remove('active');
+        addStudentForm.classList.remove('hidden');
+        addSubjectForm.classList.add('hidden');
+    });
+
+    tabBySubject.addEventListener('click', () => {
+        tabBySubject.classList.add('active');
+        tabByStudent.classList.remove('active');
+        addSubjectForm.classList.remove('hidden');
+        addStudentForm.classList.add('hidden');
+    });
+
     // Forms
-    addForm.addEventListener('submit', handleAdd);
+    addStudentForm.addEventListener('submit', handleAddStudent);
+    addSubjectForm.addEventListener('submit', handleAddSubjectMarks);
+    
+    subjectSelect.addEventListener('change', (e) => {
+        const sub = e.target.value;
+        if (!sub) return;
+        
+        if (students.length === 0) {
+            subjectStudentsList.innerHTML = `<p style="color: var(--text-muted); font-size: 13px;">No students added yet.</p>`;
+            return;
+        }
+
+        subjectStudentsList.innerHTML = students.map(s => `
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                <label style="margin: 0; width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${s.name}</label>
+                <input type="number" data-id="${s.id}" class="subject-student-mark-input" value="${s.marks && s.marks[sub] !== undefined ? s.marks[sub] : ''}" required min="0" placeholder="0" style="width: 80px; height: 32px;">
+            </div>
+        `).join('');
+    });
+
     settingsForm.addEventListener('submit', handleSettings);
     updateForm.addEventListener('submit', handleUpdate);
     document.getElementById('cancel-update').addEventListener('click', () => {
         updateContainer.classList.add('hidden');
+    });
+
+    // Subjects
+    btnAddSubject.addEventListener('click', () => {
+        const input = document.getElementById('new-subject-name');
+        const val = input.value.trim();
+        if (val && !settings.subjects.includes(val)) {
+            settings.subjects.push(val);
+            input.value = '';
+            
+            // Give existing students 0 for new subject
+            students.forEach(s => {
+                if (!s.marks) s.marks = {};
+                s.marks[val] = 0;
+            });
+            
+            saveState();
+            renderSubjectManagement();
+        }
     });
 
     // Interactions
@@ -250,19 +398,55 @@ function syncTopbarState() {
 }
 
 // --- CRUD OPERATIONS ---
-function handleAdd(e) {
+window.deleteSubject = function(sub) {
+    if (confirm(`Delete subject '${sub}'?`)) {
+        settings.subjects = settings.subjects.filter(s => s !== sub);
+        students.forEach(s => {
+            if (s.marks) delete s.marks[sub];
+        });
+        saveState();
+        renderSubjectManagement();
+    }
+}
+
+function handleAddStudent(e) {
     e.preventDefault();
     const name = document.getElementById('student-name').value.trim();
-    const mark = parseInt(document.getElementById('student-mark').value);
+    
+    let marks = {};
+    const inputs = document.querySelectorAll('.student-subject-input');
+    inputs.forEach(input => {
+        marks[input.dataset.subject] = parseInt(input.value) || 0;
+    });
 
-    if (name && !isNaN(mark)) {
+    if (name) {
         const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
-        students.push({ id: newId, name, mark });
+        students.push({ id: newId, name, marks });
         saveState();
-        addForm.reset();
-        document.getElementById('student-name').focus(); // Automatically focus for quick entry
+        addStudentForm.reset();
+        document.getElementById('student-name').focus();
         showToast(`Added ${name} successfully!`);
     }
+}
+
+function handleAddSubjectMarks(e) {
+    e.preventDefault();
+    const sub = subjectSelect.value;
+    if (!sub) return;
+
+    const inputs = document.querySelectorAll('.subject-student-mark-input');
+    inputs.forEach(input => {
+        const id = parseInt(input.dataset.id);
+        const val = parseInt(input.value) || 0;
+        const student = students.find(s => s.id === id);
+        if (student) {
+            if (!student.marks) student.marks = {};
+            student.marks[sub] = val;
+        }
+    });
+    
+    saveState();
+    showToast(`Marks saved for ${sub}!`);
 }
 
 let editingId = null;
@@ -271,7 +455,14 @@ window.prepareUpdate = function(id) {
     if (student) {
         editingId = id;
         document.getElementById('update-name').value = student.name;
-        document.getElementById('update-mark').value = student.mark;
+        
+        updateFormInputs.innerHTML = settings.subjects.map(sub => `
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <label style="margin: 0;">${sub}</label>
+                <input type="number" class="update-subject-input" data-subject="${sub}" required min="0" value="${student.marks && student.marks[sub] !== undefined ? student.marks[sub] : 0}" style="width: 100px;">
+            </div>
+        `).join('');
+        
         updateContainer.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -279,12 +470,15 @@ window.prepareUpdate = function(id) {
 
 function handleUpdate(e) {
     e.preventDefault();
-    const newMark = parseInt(document.getElementById('update-mark').value);
-    
-    if (!isNaN(newMark) && editingId !== null) {
+    if (editingId !== null) {
         const studentIndex = students.findIndex(s => s.id === editingId);
         if (studentIndex > -1) {
-            students[studentIndex].mark = newMark;
+            const inputs = document.querySelectorAll('.update-subject-input');
+            let newMarks = { ...students[studentIndex].marks };
+            inputs.forEach(input => {
+                newMarks[input.dataset.subject] = parseInt(input.value) || 0;
+            });
+            students[studentIndex].marks = newMarks;
             saveState();
             updateContainer.classList.add('hidden');
             showToast('Marks updated successfully!');
@@ -334,28 +528,42 @@ async function exportDOCX(data) {
 
     showToast('Generating DOCX...');
 
-    const tableRows = [
-        new docx.TableRow({
-            children: [
-                new docx.TableCell({ children: [new docx.Paragraph({ text: "Name", alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] }),
-                new docx.TableCell({ children: [new docx.Paragraph({ text: "Marks", alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] }),
-                new docx.TableCell({ children: [new docx.Paragraph({ text: "Percentage", alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] }),
-                new docx.TableCell({ children: [new docx.Paragraph({ text: "Status", alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] })
-            ]
-        })
+    const maxTotal = getMaxTotalMarks();
+
+    const headerChildren = [
+        new docx.TableCell({ children: [new docx.Paragraph({ text: "Name", alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] })
     ];
+    
+    settings.subjects.forEach(sub => {
+        headerChildren.push(new docx.TableCell({ children: [new docx.Paragraph({ text: sub, alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] }));
+    });
+    
+    headerChildren.push(
+        new docx.TableCell({ children: [new docx.Paragraph({ text: "Total", alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] }),
+        new docx.TableCell({ children: [new docx.Paragraph({ text: "Percentage", alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] }),
+        new docx.TableCell({ children: [new docx.Paragraph({ text: "Status", alignment: docx.AlignmentType.CENTER, heading: docx.HeadingLevel.HEADING_3 })] })
+    );
+
+    const tableRows = [new docx.TableRow({ children: headerChildren })];
 
     data.forEach(s => {
-        const pass = hasPassed(s.mark) ? 'Qualified' : 'Failed';
-        const percent = ((s.mark / settings.totalMarks) * 100).toFixed(1) + '%';
-        tableRows.push(new docx.TableRow({
-            children: [
-                new docx.TableCell({ children: [new docx.Paragraph({ text: s.name })] }),
-                new docx.TableCell({ children: [new docx.Paragraph({ text: String(s.mark), alignment: docx.AlignmentType.CENTER })] }),
-                new docx.TableCell({ children: [new docx.Paragraph({ text: percent, alignment: docx.AlignmentType.CENTER })] }),
-                new docx.TableCell({ children: [new docx.Paragraph({ text: pass, alignment: docx.AlignmentType.CENTER })] })
-            ]
-        }));
+        const pass = hasPassed(s) ? 'Qualified' : 'Failed';
+        const total = getTotalMark(s);
+        const percent = maxTotal === 0 ? "0.0%" : ((total / maxTotal) * 100).toFixed(1) + '%';
+        
+        const rowChildren = [new docx.TableCell({ children: [new docx.Paragraph({ text: s.name })] })];
+        
+        settings.subjects.forEach(sub => {
+            rowChildren.push(new docx.TableCell({ children: [new docx.Paragraph({ text: String(s.marks && s.marks[sub] !== undefined ? s.marks[sub] : '-'), alignment: docx.AlignmentType.CENTER })] }));
+        });
+        
+        rowChildren.push(
+            new docx.TableCell({ children: [new docx.Paragraph({ text: String(total), alignment: docx.AlignmentType.CENTER })] }),
+            new docx.TableCell({ children: [new docx.Paragraph({ text: percent, alignment: docx.AlignmentType.CENTER })] }),
+            new docx.TableCell({ children: [new docx.Paragraph({ text: pass, alignment: docx.AlignmentType.CENTER })] })
+        );
+
+        tableRows.push(new docx.TableRow({ children: rowChildren }));
     });
 
     const doc = new docx.Document({
@@ -374,10 +582,7 @@ async function exportDOCX(data) {
                 }),
                 new docx.Table({
                     rows: tableRows,
-                    width: {
-                        size: 100,
-                        type: docx.WidthType.PERCENTAGE,
-                    }
+                    width: { size: 100, type: docx.WidthType.PERCENTAGE }
                 })
             ]
         }]
@@ -398,12 +603,21 @@ function exportExcel(data) {
         return;
     }
 
-    const exportData = data.map(s => ({
-        "Student Name": s.name,
-        "Marks Scored": s.mark,
-        "Percentage": ((s.mark / settings.totalMarks) * 100).toFixed(1) + '%',
-        "Status": hasPassed(s.mark) ? 'Qualified' : 'Failed'
-    }));
+    const maxTotal = getMaxTotalMarks();
+
+    const exportData = data.map(s => {
+        const total = getTotalMark(s);
+        let row = { "Student Name": s.name };
+        
+        settings.subjects.forEach(sub => {
+            row[sub] = s.marks && s.marks[sub] !== undefined ? s.marks[sub] : 0;
+        });
+        
+        row["Total Marks"] = total;
+        row["Percentage"] = maxTotal === 0 ? "0.0%" : ((total / maxTotal) * 100).toFixed(1) + '%';
+        row["Status"] = hasPassed(s) ? 'Qualified' : 'Failed';
+        return row;
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
@@ -420,18 +634,24 @@ function exportPDF(data) {
 
     showToast('Generating PDF...');
     
-    // Populate hidden template
     const template = document.getElementById('print-template');
     const tbody = document.getElementById('print-body');
     document.getElementById('print-date').textContent = new Date().toLocaleDateString();
     
+    const maxTotal = getMaxTotalMarks();
+    
     tbody.innerHTML = data.map(s => {
-        const pass = hasPassed(s.mark);
-        const percent = ((s.mark / settings.totalMarks) * 100).toFixed(1) + '%';
+        const pass = hasPassed(s);
+        const total = getTotalMark(s);
+        const percent = maxTotal === 0 ? "0.0%" : ((total / maxTotal) * 100).toFixed(1) + '%';
+        
+        let subCells = settings.subjects.map(sub => `<td style="padding: 8px;">${s.marks && s.marks[sub] !== undefined ? s.marks[sub] : '-'}</td>`).join('');
+        
         return `
             <tr>
                 <td style="padding: 8px;">${s.name}</td>
-                <td style="padding: 8px;">${s.mark}</td>
+                ${subCells}
+                <td style="padding: 8px;">${total}</td>
                 <td style="padding: 8px;">${percent}</td>
                 <td style="padding: 8px; color: ${pass ? '#10B981' : '#EF4444'}">${pass ? 'Qualified' : 'Failed'}</td>
             </tr>
@@ -440,12 +660,15 @@ function exportPDF(data) {
 
     template.classList.remove('hidden');
     
+    // Scale or orientation changes might be needed if there are many subjects
+    const isLandscape = settings.subjects.length > 4;
+    
     const opt = {
-        margin:       1,
+        margin:       0.5,
         filename:     'student_report.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        jsPDF:        { unit: 'in', format: 'letter', orientation: isLandscape ? 'landscape' : 'portrait' }
     };
 
     html2pdf().set(opt).from(template).save().then(() => {
