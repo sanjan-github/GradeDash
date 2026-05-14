@@ -8,6 +8,8 @@ The `menu.py` script is my own original code. The web application was developed 
 
 ## Web Dashboard
 
+**Live Demo:** [https://sanjan-github.github.io/GradeDash/](https://sanjan-github.github.io/GradeDash/)
+
 Runs locally in your browser. Saves data in the browser's local storage.
 
 ### Core Features
