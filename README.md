@@ -1,62 +1,49 @@
-# GradeDash
+# Student Marks Manager
 
-A student marks management tool. Includes a web dashboard (HTML/CSS/JS) and a Python CLI script.
+This project is a simple student marks manager with two parts:
 
-## Author
+1. A web dashboard using `index.html`, `styles.css`, and `app.js`.
+2. A Python command-line tool in `menu.py`.
 
-The `menu.py` script is my own original code. The web application was developed by vibe coding.
+## What it does
 
-## Web Dashboard
+- The web dashboard lets you add students, enter marks, and see summary data.
+- The dashboard can show total students, passed/failed count, average score, and top students.
+- The dashboard lets you search students and sort the list.
+- It can export data to PDF, Excel, or Word files.
+- The Python tool lets you add student names and marks from the terminal.
+- The Python tool can show all records, count passed/failed students, find top and lowest scores, update marks, delete students, and search by name.
 
-**Live Demo:** [https://sanjan-github.github.io/GradeDash/](https://sanjan-github.github.io/GradeDash/)
+## Files in this project
 
-Runs locally in your browser. Saves data in the browser's local storage.
+- `index.html` — the main web page for the browser dashboard.
+- `styles.css` — the dashboard design and layout.
+- `app.js` — the JavaScript logic for the web dashboard.
+- `menu.py` — the Python CLI script for terminal-based student mark management.
+- `students.txt` — a text file sample how the Python tool saves results on exit.
 
-### Core Features
-
-- **Manage Subjects:** Add or remove subjects (e.g., Math, Science) in the Settings menu.
-- **Add Marks:**
-  - **By Student:** Enter a student's name and input marks for all declared subjects.
-  - **By Subject:** Select a subject from a dropdown, view all students, and input marks for that specific subject.
-- **Manage Students:** Edit existing marks or delete students from the main table.
-- **Search & Sort:** Find students by name. Sort the table by newest, oldest, total marks (high/low), or name (A-Z, Z-A).
-- **Live Metrics:** Displays total students, total passed, total failed, and class average.
-- **Leaderboard:** Shows the top 3 students based on total marks.
-- **Settings:** 
-  - Manage the subject list.
-  - Set individual maximum marks for each subject.
-  - Set passing rules (require a minimum total mark or a minimum overall percentage).
-- **Export Data:** Download the table as PDF, Excel (.xlsx), or Word (.docx). Exports dynamically include all subject columns.
-- **Theme:** Toggle between light and dark modes. Features a custom black-to-green gradient UI.
-
-### How to Run
+## How to use the web dashboard
 
 1. Open `index.html` in your web browser.
-2. (Optional) Run a local server: `python -m http.server 8000`, then open `http://localhost:8000`.
+2. Use the dashboard menus to add subjects, students, and marks.
+3. You can save or export the data using the export buttons.
+4. The dashboard data is stored in your browser and stays there until you clear it.
 
-## Python CLI
+## How to use the Python CLI
 
-A terminal-based manager in `menu.py`.
-
-### Features
-
-- Add student names and single marks.
-- Display all students.
-- Count passes and fails (pass mark is 40).
-- Find the highest and lowest scorers.
-- Update or delete records.
-- Search by student name.
-- Saves final results to `students.txt` on exit.
-
-### How to Run
+1. Open a terminal in this project folder.
+2. Run:
 
 ```powershell
 python menu.py
 ```
 
-## Storage Notes
+3. Follow the menu choices to add students, display records, analyze results, update marks, delete students, or search.
+4. When you exit, the data is saved to `students.txt`.
 
-- **Web App:** Data is saved in the browser (`localStorage`). Clearing browser data deletes the records.
-- **CLI:** Data is kept in memory and writes to `students.txt` on exit.
-- **Isolation:** Data is not shared between the Web App and the CLI.
+## Notes
+
+- The web app stores data in browser local storage.
+- The Python tool stores data in memory while it runs and writes it to `students.txt` when it exits.
+- The web app and the Python CLI do not share the same student data.
 
