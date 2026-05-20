@@ -1753,3 +1753,119 @@ small { color: var(--text-muted); font-size: 11px; }
         grid-template-columns: 1fr;
     }
 }
+
+/* Template Wizard Styles */
+.wizard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.wizard-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.wizard-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.wizard-card i {
+    font-size: 32px;
+    color: var(--primary);
+}
+
+.wizard-card h3 {
+    font-size: 16px;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.wizard-card p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Branch List Styles */
+.branch-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.branch-item {
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.branch-item:hover {
+    background: var(--bg-card);
+    border-color: var(--primary);
+}
+
+/* Pull to refresh */
+.ptr-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    overflow: hidden;
+    z-index: 1000;
+    pointer-events: none;
+    transition: height 0.2s ease;
+}
+
+.ptr-spinner {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-card);
+    border-radius: 50%;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+    transform: translateY(100%);
+    transition: transform 0.2s ease;
+}
+
+.ptr-spinner i {
+    color: var(--primary);
+    font-size: 16px;
+}
+
+.ptr-spinner.spinning i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}

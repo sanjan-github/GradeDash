@@ -300,29 +300,37 @@
     <!-- Templates Modal -->
     <div class="modal-overlay hidden" id="templates-modal">
         <div class="modal-card modal-card-template">
-            <div class="modal-header template-modal-header">
-                <div>
-                    <span class="template-eyebrow">Board Templates</span>
-                    <h2>Pick a ready-made marks template</h2>
-                    <p>Choose 10th or Intermediate first, then pick a state and stream.</p>
+            <div class="modal-header template-modal-header" style="align-items: flex-start; justify-content: space-between;">
+                <div style="display: flex; gap: 16px; align-items: flex-start;">
+                    <button id="template-back-btn" class="btn btn-outline hidden" aria-label="Go back" style="padding: 0 12px; height: 36px; flex-shrink: 0;">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <span class="template-eyebrow">Templates</span>
+                        <h2 id="template-modal-title">Pick a template</h2>
+                        <p id="template-modal-desc">Choose an educational level.</p>
+                    </div>
                 </div>
                 <button class="close-modal" aria-label="Close templates"><i class="fas fa-times"></i></button>
             </div>
 
-            <div class="template-summary-row">
+            <div class="template-summary-row" id="template-summary-wrapper">
                 <div id="template-current-summary" class="template-current-summary"></div>
             </div>
 
-            <div class="template-toolbar">
+            <div class="template-toolbar hidden" id="template-toolbar">
                 <div class="template-search-shell">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="template-search" placeholder="Search a state or board">
+                    <input type="text" id="template-search" placeholder="Search...">
                 </div>
-                <div class="template-filter-row" id="template-filters"></div>
             </div>
 
             <div class="template-library" id="template-library">
                 <!-- Template sections injected by JS -->
+            </div>
+            
+            <div style="text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-muted);">
+                <i class="fas fa-info-circle"></i> Note: You can customize subjects and max marks manually in the <a href="#" onclick="document.getElementById('templates-modal').classList.add('hidden'); document.getElementById('settings-modal').classList.remove('hidden'); return false;" style="color: var(--primary); text-decoration: none; font-weight: 600;">Settings</a> menu.
             </div>
         </div>
     </div>

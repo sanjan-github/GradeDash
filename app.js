@@ -32,6 +32,9 @@ if (rawStudents.length > 0 && typeof rawStudents[0].mark !== 'undefined') {
 let currentSort = 'entry-desc';
 let activeTemplateFilter = 'all';
 let templateSearchQuery = '';
+let templateStep = 'level';
+let selectedLevel = null;
+let selectedBranch = null;
 
 // --- TEMPLATE HELPERS ---
 const THEORY_80_INTERNAL_20 = [['Theory', 80], ['Internal', 20]];
@@ -45,14 +48,9 @@ const THEORY_70_PRACTICAL_20_INTERNAL_10 = [['Theory', 70], ['Practical', 20], [
 const FULL_100 = 100;
 
 const TEMPLATE_GROUPS = {
-    secondary: {
-        title: '10th',
-        description: 'Start here for class 10 board templates.'
-    },
-    intermediate: {
-        title: 'Intermediate',
-        description: 'Pick a state first, then choose the stream you want.'
-    }
+    secondary: { title: '10th', description: 'Start here for class 10 board templates.' },
+    intermediate: { title: 'Intermediate', description: 'Pick a state first, then choose the stream you want.' },
+    engineering: { title: 'Engineering', description: 'Pick your branch, then select a semester.' }
 };
 
 const TEMPLATE_FILTERS = [
@@ -225,6 +223,1385 @@ function buildHumanitiesSubjects({
     );
 }
 
+
+const engineeringData = [
+  {
+    "name": "CSE – Computer Science and Engineering",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "Programming for Problem Solving",
+        "Basic Electrical Engineering",
+        "Engineering Drawing and Computer Aided Drafting",
+        "Advanced Engineering Physics Lab",
+        "Programming for Problem Solving Lab",
+        "Basic Electrical Engineering Lab",
+        "Python Programming Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Engineering Chemistry",
+        "Data Structures",
+        "Electronic Devices and Circuits",
+        "English for Skill Enhancement",
+        "Engineering Chemistry Lab",
+        "Data Structures Lab",
+        "English Language and Communication Skills Lab",
+        "Engineering Workshop",
+        "IT Workshop"
+      ],
+      "3": [
+        "Mathematical and Statistical Foundations",
+        "Computer Organization",
+        "Java Programming",
+        "Software Engineering",
+        "Database Management Systems",
+        "Computational Mathematics Lab",
+        "Java Programming Lab",
+        "Software Engineering Lab",
+        "Database Management Systems Lab",
+        "Data Visualization-R Programming/Power BI/Tableau/Google Chart"
+      ],
+      "4": [
+        "Discrete Mathematics",
+        "Operating Systems",
+        "Algorithms Design and Analysis",
+        "Computer Networks",
+        "Innovation and Entrepreneurship",
+        "Operating Systems Lab",
+        "Computer Networks Lab",
+        "Algorithms Design and Analysis Lab",
+        "Node JS/React JS/Django – UI Design – Flutter",
+        "Indian Knowledge System"
+      ],
+      "5": [
+        "Compiler Design",
+        "Computer Networks",
+        "Software Quality & Reliability",
+        "Professional Elective-I",
+        "Open Elective-I",
+        "Compiler Design Lab",
+        "Computer Networks Lab",
+        "Software Quality & Reliability Lab",
+        "Field Based Project/Internship",
+        "Full Stack Development",
+        "Gender Sensitization / Human Values and Professional Ethics"
+      ],
+      "6": [
+        "Internet of Things",
+        "Machine Learning and Data Mining",
+        "Business Economics and Financial Analysis",
+        "Professional Elective-II",
+        "Open Elective-II",
+        "Internet of Things Lab",
+        "Machine Learning Lab",
+        "DevOps Lab",
+        "English for Employability Skills Lab",
+        "Big Data – Spark",
+        "Environmental Science"
+      ],
+      "7": [
+        "Cyber Security and Cryptography",
+        "Blockchain Technology and Applications",
+        "Fundamentals of Management for Engineers",
+        "Professional Elective-III",
+        "Professional Elective-IV",
+        "Open Elective-III",
+        "Cyber Security and Cryptography Lab",
+        "Blockchain Technology Lab",
+        "Industry Oriented Mini Project/Internship"
+      ],
+      "8": [
+        "Professional Elective-V",
+        "Professional Elective-VI",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "CSM – CSE (Artificial Intelligence & Machine Learning)",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "Programming for Problem Solving",
+        "Basic Electrical Engineering",
+        "Engineering Drawing and Computer Aided Drafting",
+        "Advanced Engineering Physics Lab",
+        "Programming for Problem Solving Lab",
+        "Basic Electrical Engineering Lab",
+        "Python Programming Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Engineering Chemistry",
+        "Data Structures",
+        "Electronic Devices and Circuits",
+        "English for Skill Enhancement",
+        "Engineering Chemistry Lab",
+        "Data Structures Lab",
+        "English Language and Communication Skills Lab",
+        "Engineering Workshop",
+        "IT Workshop"
+      ],
+      "3": [
+        "Mathematical and Statistical Foundations",
+        "Computer Organization",
+        "Java Programming",
+        "Software Engineering",
+        "Database Management Systems",
+        "Computational Mathematics Lab",
+        "Java Programming Lab",
+        "Software Engineering Lab",
+        "Database Management Systems Lab",
+        "Data Visualization-R Programming/Power BI/Tableau/Google Chart"
+      ],
+      "4": [
+        "Discrete Mathematics",
+        "Operating Systems",
+        "Algorithms Design and Analysis",
+        "Computer Networks",
+        "Machine Learning",
+        "Innovation and Entrepreneurship",
+        "Operating Systems Lab",
+        "Computer Networks Lab",
+        "Machine Learning Lab",
+        "Data Visualization-R Programming/Power BI/Power BI Lab",
+        "Indian Knowledge System"
+      ],
+      "5": [
+        "Compiler Design",
+        "Computer Networks",
+        "Software Quality & Reliability",
+        "Professional Elective-I",
+        "Open Elective-I",
+        "Compiler Design Lab",
+        "Computer Networks Lab",
+        "Software Quality & Reliability Lab",
+        "Field Based Project/Internship",
+        "Full Stack Development",
+        "Gender Sensitization / Human Values and Professional Ethics"
+      ],
+      "6": [
+        "Internet of Things",
+        "Machine Learning and Data Mining",
+        "Business Economics and Financial Analysis",
+        "Professional Elective-II",
+        "Open Elective-II",
+        "Internet of Things Lab",
+        "Machine Learning Lab",
+        "DevOps Lab",
+        "English for Employability Skills Lab",
+        "Big Data – Spark",
+        "Environmental Science"
+      ],
+      "7": [
+        "Cyber Security and Cryptography",
+        "Blockchain Technology and Applications",
+        "Fundamentals of Management for Engineers",
+        "Professional Elective-III",
+        "Professional Elective-IV",
+        "Open Elective-III",
+        "Cyber Security and Cryptography Lab",
+        "Blockchain Technology Lab",
+        "Industry Oriented Mini Project/Internship"
+      ],
+      "8": [
+        "Professional Elective-V",
+        "Professional Elective-VI",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "CSD – CSE (Data Science)",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "Programming for Problem Solving",
+        "Basic Electrical Engineering",
+        "Engineering Drawing and Computer Aided Drafting",
+        "Advanced Engineering Physics Lab",
+        "Programming for Problem Solving Lab",
+        "Basic Electrical Engineering Lab",
+        "Python Programming Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Engineering Chemistry",
+        "Data Structures",
+        "Electronic Devices and Circuits",
+        "English for Skill Enhancement",
+        "Engineering Chemistry Lab",
+        "Data Structures Lab",
+        "English Language and Communication Skills Lab",
+        "Engineering Workshop",
+        "IT Workshop"
+      ],
+      "3": [
+        "Mathematical and Statistical Foundations",
+        "Computer Organization",
+        "Java Programming",
+        "Software Engineering",
+        "Database Management Systems",
+        "Computational Mathematics Lab",
+        "Java Programming Lab",
+        "Software Engineering Lab",
+        "Database Management Systems Lab",
+        "Data Visualization-R Programming/Power BI/Tableau/Google Chart"
+      ],
+      "4": [
+        "Discrete Mathematics",
+        "Operating Systems",
+        "SQL and NoSQL for Data Science",
+        "Computer Networks",
+        "Machine Learning with Data Science",
+        "Innovation and Entrepreneurship",
+        "Operating Systems Lab",
+        "Computer Networks Lab",
+        "Machine Learning Lab",
+        "Node JS/React JS/Django – UI Design – Flutter",
+        "Indian Knowledge System"
+      ],
+      "5": [
+        "Compiler Design",
+        "Computer Networks",
+        "Internet of Things and Applications",
+        "Professional Elective-I",
+        "Open Elective-I",
+        "Compiler Design Lab",
+        "Computer Networks Lab",
+        "IoT and Applications Lab",
+        "Field Based Project/Internship",
+        "UI design – Flutter",
+        "Gender Sensitization / Human Values and Professional Ethics"
+      ],
+      "6": [
+        "Information Security Essentials",
+        "Scripting Languages",
+        "Business Economics and Financial Analysis",
+        "Professional Elective-II",
+        "Open Elective-II",
+        "Information Security Essentials Lab",
+        "Scripting Languages Lab",
+        "DevOps Lab",
+        "English for Employability Skills Lab",
+        "Prompt Engineering",
+        "Environmental Science"
+      ],
+      "7": [
+        "Advanced Artificial Intelligence",
+        "Cloud Computing and Internet of Things",
+        "Fundamentals of Management for Engineers",
+        "Professional Elective-III",
+        "Professional Elective-IV",
+        "Open Elective-III",
+        "Advanced AI Lab",
+        "Cloud Computing Lab",
+        "Industry Oriented Mini Project/Internship"
+      ],
+      "8": [
+        "Professional Elective-V",
+        "Professional Elective-VI",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "CSO – CSE (Internet of Things)",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "Programming for Problem Solving",
+        "Basic Electrical Engineering",
+        "Engineering Drawing and Computer Aided Drafting",
+        "Advanced Engineering Physics Lab",
+        "Programming for Problem Solving Lab",
+        "Basic Electrical Engineering Lab",
+        "Python Programming Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Engineering Chemistry",
+        "Data Structures",
+        "Electronic Devices and Circuits",
+        "English for Skill Enhancement",
+        "Engineering Chemistry Lab",
+        "Data Structures Lab",
+        "English Language and Communication Skills Lab",
+        "Engineering Workshop",
+        "IT Workshop"
+      ],
+      "3": [
+        "Computer Organization",
+        "Data Science Fundamentals",
+        "Digital Systems Design",
+        "Computer Networks",
+        "Database Management Systems",
+        "Computational Mathematics Lab",
+        "Data Science Fundamentals Lab",
+        "Digital Systems Design Lab",
+        "Computer Networks Lab",
+        "Node JS/React JS/Django – UI Design – Flutter"
+      ],
+      "4": [
+        "Discrete Mathematics",
+        "Operating Systems",
+        "Algorithms Design and Analysis",
+        "Computer Networks",
+        "Machine Learning",
+        "Innovation and Entrepreneurship",
+        "Operating Systems Lab",
+        "Computer Networks Lab",
+        "Machine Learning Lab",
+        "Prompt Engineering",
+        "Indian Knowledge System"
+      ],
+      "5": [
+        "Compiler Design",
+        "Information Security",
+        "Embedded Systems",
+        "Professional Elective-I",
+        "Open Elective-I",
+        "Compiler Design Lab",
+        "Information Security Lab",
+        "Embedded Systems Lab",
+        "Field Based Project/Internship",
+        "Full Stack Development",
+        "Gender Sensitization / Human Values and Professional Ethics"
+      ],
+      "6": [
+        "Cyber Physical Systems",
+        "Wireless Sensor Networks",
+        "Business Economics and Financial Analysis",
+        "Professional Elective-II",
+        "Open Elective-II",
+        "Cyber Physical Systems Lab",
+        "Wireless Sensor Networks Lab",
+        "AI and ML for IoT Lab",
+        "English for Employability Skills Lab",
+        "Ethical Hacking",
+        "Environmental Science"
+      ],
+      "7": [
+        "Internet of Things Applications",
+        "Cloud Computing and Big Data Analytics",
+        "Fundamentals of Management for Engineers",
+        "Professional Elective-III",
+        "Professional Elective-IV",
+        "Open Elective-III",
+        "IoT Applications Lab",
+        "Cloud Computing Lab",
+        "Industry Oriented Mini Project/Internship"
+      ],
+      "8": [
+        "Professional Elective-V",
+        "Professional Elective-VI",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "CSN – CSE (Networks)",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "Engineering Drawing and Computer Aided Drafting",
+        "Basic Electrical Engineering",
+        "Programming for Problem Solving",
+        "Advanced Engineering Physics Lab",
+        "Programming for Problem Solving Lab",
+        "Python Programming Lab",
+        "Basic Electrical Engineering Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Engineering Chemistry",
+        "English for Skill Enhancement",
+        "Electronic Devices and Circuits",
+        "Data Structures",
+        "Engineering Chemistry Lab",
+        "Data Structures Lab",
+        "English Language and Communication Skills Lab",
+        "Engineering Workshop",
+        "IT Workshop"
+      ],
+      "3": [
+        "Probability and Statistical Foundations",
+        "Database Management Systems",
+        "Software Engineering",
+        "Computer Organization",
+        "Java Programming",
+        "Computational Mathematics Laboratory",
+        "Software Engineering Laboratory",
+        "Java Programming Laboratory",
+        "Database Management Systems Laboratory",
+        "Data Visualization – R Programming/Power BI/Tableau/Google Chart"
+      ],
+      "4": [
+        "Discrete Mathematics",
+        "Web Programming",
+        "Operating Systems",
+        "Automata Theory and Compiler Design",
+        "Data Communications",
+        "Innovation and Entrepreneurship",
+        "Web Programming Laboratory",
+        "Operating Systems Laboratory",
+        "Linux Programming Laboratory",
+        "Node JS/React JS/Django – UI Design – Flutter",
+        "Indian Knowledge System"
+      ],
+      "5": [
+        "Network Programming",
+        "Computer Networks",
+        "Algorithms Design and Analysis",
+        "Professional Elective-I",
+        "Open Elective-I",
+        "Network Programming Laboratory",
+        "Algorithms Design and Analysis Laboratory",
+        "Computer Networks Laboratory",
+        "Field Based Project/Internship",
+        "Full Stack Development",
+        "Gender Sensitization & Human Values and Professional Ethics"
+      ],
+      "6": [
+        "Cryptography and Network Security",
+        "Internet of Things",
+        "Business Economics and Financial Analysis",
+        "Professional Elective-II",
+        "Open Elective-II",
+        "Cryptography and Network Security Laboratory",
+        "Internet of Things Laboratory",
+        "Development and Operations (DevOps) Laboratory",
+        "English for Employability Skills Lab",
+        "Drone Technology Lab",
+        "Environmental Sciences"
+      ],
+      "7": [
+        "Blockchain Technology",
+        "Cloud Computing",
+        "Fundamentals of Management",
+        "Professional Elective-III",
+        "Professional Elective-IV",
+        "Open Elective-III",
+        "Blockchain Technology Laboratory",
+        "Cloud Computing Laboratory",
+        "Industry Oriented Mini Project/Summer Internship"
+      ],
+      "8": [
+        "Professional Elective-V",
+        "Professional Elective-VI",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "CSC – CSE (Cyber Security)",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "Programming for Problem Solving",
+        "Basic Electrical Engineering",
+        "Engineering Drawing and Computer Aided Drafting",
+        "Advanced Engineering Physics Lab",
+        "Programming for Problem Solving Lab",
+        "Basic Electrical Engineering Lab",
+        "Python Programming Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Engineering Chemistry",
+        "Data Structures",
+        "Electronic Devices and Circuits",
+        "English for Skill Enhancement",
+        "Engineering Chemistry Lab",
+        "Data Structures Lab",
+        "English Language and Communication Skills Lab",
+        "Engineering Workshop",
+        "IT Workshop"
+      ],
+      "3": [
+        "Mathematical and Statistical Foundations",
+        "Computer Organization",
+        "Java Programming",
+        "Software Engineering",
+        "Database Management System",
+        "Computational Mathematics Lab",
+        "Java Programming Lab",
+        "Software Engineering Lab",
+        "Database Management Systems Lab",
+        "Data Visualization-R Programming/Power BI/Tableau/Google Chart"
+      ],
+      "4": [
+        "Discrete Mathematics",
+        "Operating Systems",
+        "Formal Languages and Automata Theory",
+        "Computer Networks",
+        "Mathematical Foundations of Cryptography",
+        "Innovation and Entrepreneurship",
+        "Operating Systems Lab",
+        "Computer Networks Lab",
+        "Mathematical Foundations of Cryptography Lab",
+        "Node JS/React JS/Django – UI Design – Flutter",
+        "Indian Knowledge System"
+      ],
+      "5": [
+        "Information Security",
+        "Network Management Systems and Operations",
+        "Algorithm Design and Analysis",
+        "Professional Elective-I",
+        "Open Elective-I",
+        "Information Security Laboratory",
+        "Network Management Systems and Operations Lab",
+        "Algorithm Design and Analysis Lab",
+        "Field Based Research Project",
+        "Full Stack Development",
+        "Gender Sensitization/Human Values and Professional Ethics"
+      ],
+      "6": [
+        "Cyber Security Essentials",
+        "Secure Coding Practices",
+        "Business Economics and Financial Analysis",
+        "Professional Elective-II",
+        "Open Elective-II",
+        "Cyber Security Essentials Lab",
+        "Secure Coding Practices Lab",
+        "Development and Operations (DevOps) Lab",
+        "English for Employability Skills Lab",
+        "Big Data – Spark",
+        "Environmental Science"
+      ],
+      "7": [
+        "Vulnerability Assessment & Penetration Testing",
+        "Cyber Crime Investigation & Digital Forensics",
+        "Fundamentals of Management",
+        "Professional Elective-III",
+        "Professional Elective-IV",
+        "Open Elective-III",
+        "Vulnerability Assessment & Penetration Testing Lab",
+        "Cyber Crime Investigation & Digital Forensics Lab",
+        "Industry Oriented Mini Project/Internship"
+      ],
+      "8": [
+        "Professional Elective-V",
+        "Professional Elective-VI",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "CSB – Computer Science and Business Systems (CSBS)",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "Programming for Problem Solving",
+        "Basic Electrical Engineering",
+        "Engineering Drawing and Computer Aided Drafting",
+        "Advanced Engineering Physics Lab",
+        "Programming for Problem Solving Lab",
+        "Basic Electrical Engineering Lab",
+        "Python Programming Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Engineering Chemistry",
+        "Data Structures",
+        "Electronic Devices and Circuits",
+        "English for Skill Enhancement",
+        "Engineering Chemistry Lab",
+        "Data Structures Lab",
+        "English Language and Communication Skills Lab",
+        "Engineering Workshop",
+        "IT Workshop"
+      ],
+      "3": [
+        "Mathematical and Statistical Foundations",
+        "Computer Organization",
+        "Business Statistics Using R",
+        "Algorithms Design and Analysis",
+        "Database Management Systems",
+        "Computational Mathematics Lab",
+        "Business Statistics Using R Lab",
+        "Algorithms Design and Analysis Lab",
+        "Database Management Systems Lab",
+        "Data Visualization-R Programming/Power BI/Tableau/Google Chart"
+      ],
+      "4": [
+        "Discrete Mathematics",
+        "Operating Systems",
+        "Artificial Intelligence",
+        "Software Engineering",
+        "Computer Networks",
+        "Innovation and Entrepreneurship",
+        "Operating Systems Lab",
+        "Artificial Intelligence Laboratory",
+        "Software Engineering Laboratory",
+        "Node JS/React JS/Django",
+        "Indian Knowledge System"
+      ],
+      "5": [
+        "Automata Theory and Compiler Design",
+        "Web Technologies",
+        "Business Analytics",
+        "Professional Elective-I",
+        "Open Elective-I",
+        "Compiler Design Laboratory",
+        "Web Technologies Laboratory",
+        "Business Analytics Laboratory",
+        "Field Based Research Project",
+        "UI Design – Flutter",
+        "Gender Sensitization",
+        "Human Values and Professional Ethics"
+      ],
+      "6": [
+        "Machine Learning",
+        "Operations Research",
+        "Business Economics and Financial Analysis",
+        "Professional Elective-II",
+        "Open Elective-II",
+        "Operations Research Laboratory",
+        "Linux Programming Laboratory",
+        "Machine Learning Laboratory",
+        "English for Employability Skills Laboratory",
+        "Big Data – Spark",
+        "Environmental Science"
+      ],
+      "7": [
+        "Deep Learning",
+        "Marketing Management and Research",
+        "Fundamentals of Management for Engineers",
+        "Professional Elective-III",
+        "Professional Elective-IV",
+        "Open Elective-III",
+        "Deep Learning Laboratory",
+        "DevOps Laboratory",
+        "Industry Oriented Mini Project/ Internship"
+      ],
+      "8": [
+        "Professional Elective-V",
+        "Professional Elective-VI",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "CSW – Computer Engineering (Software Engineering)",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "Programming for Problem Solving",
+        "Basic Electrical Engineering",
+        "Engineering Drawing and Computer Aided Drafting",
+        "Advanced Engineering Physics Lab",
+        "Programming for Problem Solving Lab",
+        "Basic Electrical Engineering Lab",
+        "Python Programming Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Engineering Chemistry",
+        "Data Structures",
+        "Electronic Devices and Circuits",
+        "English for Skill Enhancement",
+        "Engineering Chemistry Lab",
+        "Data Structures Lab",
+        "English Language and Communication Skills Lab",
+        "Engineering Workshop",
+        "IT Workshop"
+      ],
+      "3": [
+        "Mathematical and Statistical Foundations",
+        "Computer Organization",
+        "Java Programming",
+        "Software Engineering",
+        "Database Management System",
+        "Computational Mathematics Lab",
+        "Java Programming Lab",
+        "Software Engineering Lab",
+        "Database Management Systems Lab",
+        "Data Visualization-R Programming/Power BI/Tableau/Google Chart"
+      ],
+      "4": [
+        "Discrete Mathematics",
+        "Operating Systems",
+        "Automata Theory and Compiler Design",
+        "Software Requirements and Estimation",
+        "Web Technologies",
+        "Innovation and Entrepreneurship",
+        "Linux Programming Lab",
+        "Operating Systems Lab",
+        "Web Technologies Lab",
+        "Node JS/React JS/Django",
+        "Indian Knowledge System"
+      ],
+      "5": [
+        "Software Testing Methodologies",
+        "Machine Learning",
+        "Algorithm Design and Analysis",
+        "Professional Elective-I",
+        "Open Elective-I",
+        "Software Testing Methodologies Lab",
+        "Machine Learning Lab",
+        "Algorithm Design and Analysis Lab",
+        "Field Based Project/Internship",
+        "UI Design – Flutter",
+        "Gender Sensitization/Human Values and Professional Ethics"
+      ],
+      "6": [
+        "Software Architecture and Design Patterns",
+        "Computer Networks",
+        "Business Economics and Financial Analysis",
+        "Professional Elective-II",
+        "Open Elective-II",
+        "Software Architecture and Design Patterns Lab",
+        "Computer Networks Lab",
+        "DevOps Laboratory",
+        "English for Employability Skills Lab",
+        "Big Data – Spark",
+        "Environmental Science"
+      ],
+      "7": [
+        "Agile Software Development",
+        "Deep Learning",
+        "Fundamentals of Management",
+        "Professional Elective-III",
+        "Professional Elective-IV",
+        "Open Elective-III",
+        "Agile Software Development Lab",
+        "Deep Learning Laboratory",
+        "Industry Oriented Mini Project/Internship"
+      ],
+      "8": [
+        "Professional Elective-V",
+        "Professional Elective-VI",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "INF – Information Technology (IT)",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "Programming for Problem Solving",
+        "Basic Electrical Engineering",
+        "Engineering Drawing and Computer Aided Drafting",
+        "Advanced Engineering Physics Lab",
+        "Programming for Problem Solving Lab",
+        "Basic Electrical Engineering Lab",
+        "Python Programming Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Engineering Chemistry",
+        "Data Structures",
+        "Electronic Devices and Circuits",
+        "English for Skill Enhancement",
+        "Engineering Chemistry Lab",
+        "Data Structures Lab",
+        "English Language and Communication Skills Lab",
+        "Engineering Workshop",
+        "IT Workshop"
+      ],
+      "3": [
+        "Mathematical and Statistical Foundations",
+        "Computer Organization and Microprocessor",
+        "Java Programming",
+        "Operating Systems",
+        "Introduction to IoT",
+        "Computational Mathematics Lab",
+        "Java Programming Lab",
+        "Operating Systems Lab",
+        "Internet of Things Lab",
+        "Data Visualization-R Programming/Power BI/Tableau/Google Chart"
+      ],
+      "4": [
+        "Discrete Mathematics",
+        "Data Communications and Computer Networks",
+        "Formal Languages and Automata Theory",
+        "Database Management Systems",
+        "Web Programming",
+        "Innovation and Entrepreneurship",
+        "Computer Networks Lab",
+        "Database Management Systems Lab",
+        "Web Programming Lab",
+        "Node JS/React JS/Django – UI Design – Flutter",
+        "Indian Knowledge System"
+      ],
+      "5": [
+        "Software Engineering",
+        "Machine Learning",
+        "Algorithm Design and Analysis",
+        "Professional Elective-I",
+        "Open Elective-I",
+        "Software Engineering Lab",
+        "Machine Learning Lab",
+        "Algorithm Design and Analysis Lab",
+        "Field Based Project/Internship",
+        "Full Stack Development",
+        "Gender Sensitization/Human Values and Professional Ethics"
+      ],
+      "6": [
+        "Compiler Design",
+        "Deep Learning",
+        "Business Economics and Financial Analysis",
+        "Professional Elective-II",
+        "Open Elective-II",
+        "Compiler Design Lab",
+        "Deep Learning Lab",
+        "Development Operations (DevOps) Lab",
+        "English for Employability Skills Lab",
+        "Big Data – Spark",
+        "Environmental Science"
+      ],
+      "7": [
+        "Information Security",
+        "Natural Language Processing",
+        "Fundamentals of Management",
+        "Professional Elective-III",
+        "Professional Elective-IV",
+        "Open Elective-III",
+        "Information Security Lab",
+        "Natural Language Processing Lab",
+        "Industry Oriented Mini Project/Internship"
+      ],
+      "8": [
+        "Professional Elective-V",
+        "Professional Elective-VI",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "ECE – Electronics and Communication Engineering",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "Programming for Problem Solving",
+        "Basic Electrical Engineering",
+        "Engineering Drawing and Computer Aided Drafting",
+        "English for Skill Enhancement",
+        "Advanced Engineering Physics Lab",
+        "Programming for Problem Solving Lab",
+        "English Language and Communication Skills Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Engineering Chemistry",
+        "Python Programming",
+        "Data Structures",
+        "Network Analysis and Synthesis",
+        "Engineering Chemistry Lab",
+        "Applied Python Programming Lab",
+        "Data Structures Lab",
+        "Basic Electrical Engineering Lab",
+        "Engineering Workshop"
+      ],
+      "3": [
+        "Probability Theory and Stochastic Processes",
+        "Signals and Systems",
+        "Electronic Devices and Circuits",
+        "Digital Logic Design",
+        "Control Systems",
+        "Innovation and Entrepreneurship",
+        "Modelling and Simulation Lab",
+        "Electronic Devices and Circuits Lab",
+        "Digital Logic Design Lab",
+        "Linux and Shell Scripting",
+        "Environmental Science"
+      ],
+      "4": [
+        "Numerical Methods and Complex Variables",
+        "Electromagnetic Fields and Transmission Lines",
+        "Analog and Digital Communications",
+        "Electronic Circuit Analysis",
+        "Linear and Digital IC Applications",
+        "Computational Mathematics Lab",
+        "Analog and Digital Communications Lab",
+        "Electronic Circuit Analysis Lab",
+        "Linear and Digital IC Applications Lab",
+        "Web and Mobile Applications"
+      ],
+      "5": [
+        "Digital Signal Processing",
+        "RISC and Microcontroller Architectures",
+        "CMOS VLSI Design",
+        "Professional Elective-I",
+        "Open Elective-I",
+        "RISC and Microcontroller Interfacing Laboratory",
+        "CMOS VLSI Design Laboratory",
+        "Digital Signal Processing Laboratory",
+        "Field Based Research Project",
+        "FPGA based System Design",
+        "Indian Knowledge System"
+      ],
+      "6": [
+        "Antenna Design and Wave Propagation",
+        "IoT Architectures and Protocols",
+        "Business Economics and Financial Analysis",
+        "Professional Elective-II",
+        "Open Elective-II",
+        "Advanced Communications Lab",
+        "IoT Architectures and Protocols Lab",
+        "VLSI Design Verification Lab",
+        "Advanced English Communication Skills Lab",
+        "5G Practical Lab/Robotic Lab/Drone Lab",
+        "Gender Sensitization and Human Values and Professional Ethics"
+      ],
+      "7": [
+        "Microwave and Optical Communications",
+        "Embedded System Design",
+        "Fundamentals of Management for Engineers",
+        "Professional Elective-III",
+        "Professional Elective-IV",
+        "Open Elective-III",
+        "Microwave and Optical Communications Lab",
+        "Embedded System Design Lab",
+        "Industry Oriented Mini Project/Internship"
+      ],
+      "8": [
+        "Professional Elective-V",
+        "Professional Elective-VI",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "EEE – Electrical and Electronics Engineering",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "Programming for Problem Solving",
+        "Electrical Circuits – I",
+        "Engineering Drawing and Computer Aided Drafting",
+        "English for Skill Enhancement",
+        "Advanced Engineering Physics Lab",
+        "Programming for Problem Solving Lab",
+        "English Language and Communication Skills Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Engineering Chemistry",
+        "Python Programming",
+        "Data Structures",
+        "Electrical Circuits – II",
+        "Engineering Chemistry Lab",
+        "Python Programming Lab",
+        "Data Structures Lab",
+        "Electrical Circuits Lab",
+        "Engineering Workshop"
+      ],
+      "3": [
+        "Electromagnetic Fields",
+        "Electrical Machines – I",
+        "Electronic Devices and Circuits",
+        "Power Systems – I",
+        "Electrical Measurements and Sensors",
+        "Innovation and Entrepreneurship",
+        "Electrical Machines – I Lab",
+        "Electrical Measurements and Sensors Lab",
+        "Electronic Devices and Circuits Lab",
+        "Design of Electrical Systems using AutoCAD",
+        "Environmental Science"
+      ],
+      "4": [
+        "Numerical Methods and Complex Variables",
+        "Electrical Machines – II",
+        "Power Systems – II",
+        "Digital Electronics",
+        "Control Systems",
+        "Computational Mathematics Lab",
+        "Electrical Machines – II Lab",
+        "Control Systems Lab",
+        "Digital Electronics Lab",
+        "PCB Design"
+      ],
+      "5": [
+        "Power Electronics",
+        "Microprocessors and Microcontrollers",
+        "Power System Protection",
+        "Professional Elective-I",
+        "Open Elective-I",
+        "Power Electronics Laboratory",
+        "Power System Simulation Lab",
+        "Microprocessors and Microcontrollers Lab",
+        "Field Based Project/Internship",
+        "Robotics and Automation",
+        "Indian Knowledge System"
+      ],
+      "6": [
+        "Power System Operation and Control",
+        "Signals and Systems",
+        "Business Economics and Financial Analysis",
+        "Professional Elective-II",
+        "Open Elective-II",
+        "Signals and Systems Lab",
+        "Power System Simulation Lab",
+        "Electrical and Electronics Design Lab",
+        "English for Employability Skills Lab",
+        "Design of Solar Power System",
+        "Gender Sensitization and Human Values and Professional Ethics"
+      ],
+      "7": [
+        "Power Electronics for Renewable Energy Systems",
+        "Hybrid Electric Vehicles",
+        "Fundamentals of Management",
+        "Professional Elective-III",
+        "Professional Elective-IV",
+        "Open Elective-III",
+        "Power Electronics for Renewable Energy Systems Lab",
+        "Electric Vehicles Laboratory",
+        "Industry Oriented Mini Project/Internship"
+      ],
+      "8": [
+        "Professional Elective-V",
+        "Professional Elective-VI",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "CIV – Civil Engineering",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "C Programming and Data Structures/Programming for Problem Solving",
+        "Computer Aided Engineering Graphics",
+        "Engineering Workshop",
+        "English for Skill Enhancement",
+        "Advanced Engineering Physics Laboratory",
+        "C Programming and Data Structures Lab/Programming for Problem Solving Lab",
+        "English Language and Communication Skills Laboratory"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Applied Chemistry",
+        "Python Programming",
+        "Basic Electrical and Electronics Engineering",
+        "Building Planning and Construction",
+        "Engineering Mechanics",
+        "Chemistry Laboratory for Engineers",
+        "Python Programming Laboratory",
+        "Basic Electrical Engineering Laboratory",
+        "NSS and Yoga"
+      ],
+      "3": [
+        "Probability and Statistics",
+        "Building Materials and Concrete Technology",
+        "Strength of Materials",
+        "Surveying and Geomatics",
+        "Fluid Mechanics",
+        "Computational Mathematics Laboratory",
+        "Material Testing Laboratory",
+        "Strength of Materials Laboratory",
+        "Surveying & Geomatics Laboratory",
+        "Design Thinking and Tinkering Laboratory"
+      ],
+      "4": [
+        "Structural Mechanics",
+        "Water Resources and Irrigation Engineering",
+        "Hydraulics & Hydraulic Machinery",
+        "Theory of Structures",
+        "Engineering Geology",
+        "Innovation and Entrepreneurship",
+        "Engineering Geology Laboratory",
+        "Hydraulics & Hydraulic Machinery Laboratory",
+        "Computer Aided Building Drafting Laboratory",
+        "Digital Surveying Laboratory",
+        "Indian Knowledge System"
+      ],
+      "5": [
+        "Environmental Engineering",
+        "Design of Reinforced Concrete Members",
+        "Transportation Engineering",
+        "Professional Elective-I",
+        "Open Elective-I",
+        "Environmental Engineering Laboratory",
+        "Computer Aided Design Laboratory",
+        "Highway Materials Laboratory",
+        "Field Based Project/Internship",
+        "Building Information Modelling Laboratory",
+        "Gender Sensitization Lab/Human Values and Professional Ethics"
+      ],
+      "6": [
+        "Geotechnical Engineering",
+        "Design of Steel Structures",
+        "Business Economics and Financial Analysis",
+        "Professional Elective-II",
+        "Open Elective-II",
+        "Geotechnical Engineering Laboratory",
+        "GIS Laboratory",
+        "Civil Engineering Software Laboratory",
+        "Advanced English Communication Skills Laboratory",
+        "Project Management Software Lab",
+        "Environmental Science"
+      ],
+      "7": [
+        "Estimation, Quantity Surveying & Valuation",
+        "Foundation Engineering",
+        "Fundamentals of Management",
+        "Professional Elective-III",
+        "Professional Elective-IV",
+        "Open Elective-III",
+        "Quantity Surveying Laboratory",
+        "Computational Laboratory/IoT Laboratory",
+        "Industry Oriented Mini Project/Summer Internship"
+      ],
+      "8": [
+        "Professional Elective-V",
+        "Professional Elective-VI",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "MEC – Mechanical Engineering",
+    "semesters": {
+      "1": [
+        "Matrices and Calculus",
+        "Advanced Engineering Physics",
+        "C Programming and Data Structures",
+        "Engineering Mechanics",
+        "English for Skill Enhancement",
+        "Advanced Engineering Physics Lab",
+        "C Programming and Data Structures Lab",
+        "Engineering Workshop",
+        "English Language and Communication Skills Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Applied Chemistry",
+        "Python Programming",
+        "Elements of Electrical and Electronics Engineering",
+        "Thermodynamics",
+        "Engineering Drawing and Computer Aided Drafting",
+        "Chemistry Lab for Engineers",
+        "Python Programming Lab",
+        "Elements of Electrical and Electronics Engineering Lab"
+      ],
+      "3": [
+        "Probability, Statistics and Complex Variables",
+        "Mechanics of Solids",
+        "Material Science and Metallurgy",
+        "Production Technology",
+        "Fluid Mechanics and Hydraulic Machines",
+        "Computational Mathematics Lab",
+        "Production Technology Lab",
+        "Material Science and Mechanics of Solids Lab",
+        "Fluid Mechanics and Hydraulic Machines Lab",
+        "Design Thinking and Ideation"
+      ],
+      "4": [
+        "Kinematics of Machinery",
+        "Thermal Engineering – I",
+        "Design of Machine Elements",
+        "Instrumentation and Control Systems",
+        "Operations Research",
+        "Innovation and Entrepreneurship",
+        "Conventional and Computer Aided Machine Drawing",
+        "Instrumentation and Control Systems Lab",
+        "Thermal Engineering – I Lab",
+        "Data Analytics and Python for Engineers",
+        "Indian Knowledge System"
+      ]
+    }
+  },
+  {
+    "name": "Aeronautical Engineering",
+    "semesters": {
+      "1": [
+        "Matrices & Calculus",
+        "Engineering Chemistry",
+        "Elements of Electrical & Electronics Engineering",
+        "C Programming & Data Structures",
+        "Engineering Mechanics",
+        "Engineering Chemistry Lab",
+        "C Programming & Data Structures Lab",
+        "Engineering Workshop",
+        "Elements of Electrical & Electronics Engineering Lab"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Advanced Engineering Physics",
+        "Computer Aided Engineering Drawing",
+        "English for Skill Enhancement",
+        "Python Programming",
+        "Aero Thermodynamics",
+        "Advanced Engineering Physics Lab",
+        "Python Programming Lab",
+        "English Language and Communication Skills Lab"
+      ],
+      "3": [
+        "Probability, Statistics & Complex Variables",
+        "Engineering Thermodynamics – I",
+        "Mechanics of Solids",
+        "Environmental Science and Engineering",
+        "Materials Science and Engineering",
+        "Fluid Mechanics and Thermodynamics of Machines",
+        "Manufacturing Technology – I",
+        "Engineering Graphics (Skill Development Course)",
+        "Constitution of India & Professional Ethics (S&H Course)"
+      ],
+      "4": [
+        "Differential Equations and Fourier Transforms",
+        "Advance Engineering Mathematics",
+        "Fluid Mechanics",
+        "Engineering Metallurgy",
+        "Mechanics of Materials",
+        "Manufacturing Technology – II",
+        "Dynamics of Machinery",
+        "Engineering Practices Lab",
+        "Computer Aided Machine Drawing Lab"
+      ],
+      "5": [
+        "Heat and Mass Transfer",
+        "Mine Surveying – I",
+        "Mine Geology",
+        "Introduction to Material Handling Equipment",
+        "Environmental Engineering and Pollution Control Engineering",
+        "Professional Ethics & Cyber Security",
+        "Introduction to Data Science and Applications (Skill Dev Course)",
+        "Elective – I (Open Elective)",
+        "Open Elective – I",
+        "Fire and Safety Engineering Laboratory",
+        "Environmental Engineering Laboratory"
+      ],
+      "6": [
+        "Industrial Management",
+        "Mine Ventilation – I",
+        "Mine Planning & Design – I",
+        "Transportation Engineering",
+        "Advanced Rock Mechanics",
+        "Elective – II (Open Elective)",
+        "Open Elective – II",
+        "Mine Ventilation – I Lab",
+        "Mine Planning & Design Lab",
+        "Advanced Rock Mechanics Lab"
+      ],
+      "7": [
+        "Mining Machinery – I",
+        "Mineral Economics",
+        "Elective – III (Open Elective)",
+        "Elective – IV (Open Elective)",
+        "Safety in Mines – I",
+        "Human Resource Development (Skill Dev Course)",
+        "Entrepreneurship Development (Value Added Course)",
+        "Elective – V",
+        "Industry Oriented Mini Project",
+        "Professional Practices Laboratory"
+      ],
+      "8": [
+        "Seminar and Industrial Visits",
+        "Elective – VI",
+        "Elective – VII",
+        "Project Work"
+      ]
+    }
+  },
+  {
+    "name": "Mining Engineering",
+    "semesters": {
+      "1": [
+        "Mathematics – I",
+        "Engineering Physics",
+        "C Programming and Data Structures",
+        "Computer Aided Engineering Graphics",
+        "English for Skill Enhancement",
+        "Physics Laboratory",
+        "C Programming and Data Structures Laboratory",
+        "English Language and Communication Skills Laboratory"
+      ],
+      "2": [
+        "Ordinary Differential Equations and Vector Calculus",
+        "Applied Chemistry",
+        "Python Programming",
+        "Basic Electrical and Electronics Engineering",
+        "Introduction to Mining Engineering",
+        "Engineering Mechanics/Applied Mechanics",
+        "Chemistry Laboratory for Engineers",
+        "Python Programming Laboratory",
+        "Basic Electrical Engineering Laboratory"
+      ],
+      "3": [
+        "Probability, Statistics & Complex Variables",
+        "Mine Surveying – I",
+        "Development of Mineral Deposits",
+        "Mining Geology",
+        "Fluid Mechanics & Hydraulic Machines",
+        "Computational Mathematics Laboratory",
+        "Mine Surveying – I Laboratory",
+        "Mining Geology Laboratory",
+        "Fluid Mechanics & Hydraulic Machines Lab",
+        "Industrial Training – I"
+      ],
+      "4": [
+        "Surface Mining Technology",
+        "Mine Ventilation",
+        "Mine Surveying – II",
+        "Underground Coal Mining Technology",
+        "Mine Mechanization – I",
+        "Mine Surveying – II Lab",
+        "Mine Ventilation Lab",
+        "Mine Mechanization – I Lab",
+        "Introduction to Data Science for Mining Engg",
+        "Indian Knowledge System",
+        "(Optional) Work-based Vocational Course/Internship"
+      ],
+      "5": [
+        "Rock Mechanics",
+        "Mine Mechanization – II",
+        "Mine Hazards & Rescue",
+        "Professional Elective – I",
+        "Open Elective – I",
+        "Rock Mechanics Lab",
+        "Mine Mechanization – II Lab",
+        "Mine Hazards & Rescue Lab",
+        "Industrial Training – II",
+        "Gender Sensitization Lab*/Constitution of India*"
+      ],
+      "6": [
+        "Mine Planning & Design",
+        "Mineral Processing",
+        "Fundamentals of Management for Engineers/Entrepreneurship/etc.",
+        "Professional Elective – II",
+        "Open Elective – II",
+        "Mineral Processing Lab",
+        "Ground Control Lab",
+        "Mine Planning & Design Lab",
+        "Advanced English Communication Skills Lab",
+        "Industrial Training – III",
+        "Environmental Science"
+      ],
+      "7": [
+        "Mine Legislation & General Safety",
+        "Underground Metal Mining Technology",
+        "Fundamentals of Management for Engineers/Entrepreneurship/etc.",
+        "Professional Elective – III",
+        "Professional Elective – IV",
+        "Open Elective – III",
+        "Computer Applications in Mining Lab",
+        "Mine Safety Lab",
+        "Industry Oriented Mini Project/Summer Internship"
+      ],
+      "8": [
+        "Professional Elective – V",
+        "Professional Elective – VI",
+        "Project Work"
+      ]
+    }
+  }
+];
 const boardTemplates = [
     createClass10Template({
         id: 'cbse-class-10',
@@ -1632,23 +3009,6 @@ function sortTemplatesForDisplay(a, b) {
     return a.title.localeCompare(b.title);
 }
 
-function renderTemplateExperience() {
-    renderTemplateFilters();
-    renderCurrentTemplateSummary();
-    renderTemplateLibrary();
-}
-
-function renderTemplateFilters() {
-    templateFiltersContainer.innerHTML = TEMPLATE_FILTERS.map(filter => `
-        <button
-            type="button"
-            class="template-filter-chip ${activeTemplateFilter === filter.id ? 'active' : ''}"
-            data-filter="${filter.id}">
-            ${filter.label}
-        </button>
-    `).join('');
-}
-
 function renderCurrentTemplateSummary() {
     const subjectPreview = settings.subjects.slice(0, 3).map(sub => `${sub} ${settings.subjectMaxMarks[sub] || 100}`).join(', ');
     const remainingCount = Math.max(settings.subjects.length - 3, 0);
@@ -1665,88 +3025,237 @@ function renderCurrentTemplateSummary() {
     `;
 }
 
-function getVisibleTemplates() {
-    return boardTemplates.filter(template => {
-        const matchesSearch = !templateSearchQuery || template.searchText.includes(templateSearchQuery);
-        if (!matchesSearch) return false;
-        return activeTemplateFilter === 'all' ? true : template.group === activeTemplateFilter;
-    });
+function renderTemplateExperience() {
+    templateStep = 'level';
+    selectedLevel = null;
+    selectedBranch = null;
+    templateSearchQuery = '';
+    document.getElementById('template-search').value = '';
+    renderTemplateWizard();
 }
 
-function renderTemplateLibrary() {
+function renderTemplateWizard() {
+    renderCurrentTemplateSummary();
+    const toolbar = document.getElementById('template-toolbar');
+    const backBtn = document.getElementById('template-back-btn');
+    const title = document.getElementById('template-modal-title');
+    const desc = document.getElementById('template-modal-desc');
+
+    if (templateStep === 'level') {
+        toolbar.classList.add('hidden');
+        backBtn.classList.add('hidden');
+        title.textContent = 'Pick a template';
+        desc.textContent = 'Choose an educational level.';
+        renderLevelSelection();
+    } else if (templateStep === 'board') {
+        toolbar.classList.remove('hidden');
+        backBtn.classList.remove('hidden');
+        title.textContent = TEMPLATE_GROUPS[selectedLevel].title;
+        desc.textContent = TEMPLATE_GROUPS[selectedLevel].description;
+        renderBoardSelection();
+    } else if (templateStep === 'branch') {
+        toolbar.classList.remove('hidden');
+        backBtn.classList.remove('hidden');
+        title.textContent = 'Engineering Branches';
+        desc.textContent = 'Search and select your branch.';
+        renderBranchSelection();
+    } else if (templateStep === 'semester') {
+        toolbar.classList.add('hidden');
+        backBtn.classList.remove('hidden');
+        title.textContent = selectedBranch.name;
+        desc.textContent = 'Select a semester to apply.';
+        renderSemesterSelection();
+    }
+}
+
+function renderLevelSelection() {
+    templateLibrary.innerHTML = `
+        <div class="wizard-grid">
+            <div class="wizard-card" onclick="goToWizardStep('board', 'secondary')">
+                <i class="fas fa-school"></i>
+                <h3>10th Class</h3>
+                <p>CBSE, SSC, SSLC, etc.</p>
+            </div>
+            <div class="wizard-card" onclick="goToWizardStep('board', 'intermediate')">
+                <i class="fas fa-university"></i>
+                <h3>Intermediate</h3>
+                <p>State Boards, CBSE 11/12</p>
+            </div>
+            <div class="wizard-card" onclick="goToWizardStep('branch', 'engineering')">
+                <i class="fas fa-laptop-code"></i>
+                <h3>Engineering</h3>
+                <p>B.Tech Semesters 1-8</p>
+            </div>
+        </div>
+    `;
+}
+
+function goToWizardStep(step, levelOrBranch) {
+    if (step === 'board') {
+        selectedLevel = levelOrBranch;
+    } else if (step === 'branch') {
+        selectedLevel = 'engineering';
+    } else if (step === 'semester') {
+        selectedBranch = levelOrBranch;
+    }
+    templateStep = step;
+    templateSearchQuery = '';
+    document.getElementById('template-search').value = '';
+    renderTemplateWizard();
+}
+
+function goBackWizardStep() {
+    if (templateStep === 'board' || templateStep === 'branch') {
+        templateStep = 'level';
+    } else if (templateStep === 'semester') {
+        templateStep = 'branch';
+    }
+    templateSearchQuery = '';
+    document.getElementById('template-search').value = '';
+    renderTemplateWizard();
+}
+
+function renderBoardSelection() {
     const currentSignature = getCurrentSettingsSignature();
-    const visibleTemplates = getVisibleTemplates();
-    const renderedSections = Object.keys(TEMPLATE_GROUPS).map(groupKey => {
-        const templates = visibleTemplates.filter(template => template.group === groupKey);
-        if (!templates.length) return '';
+    const visibleTemplates = boardTemplates.filter(template => {
+        if (template.group !== selectedLevel) return false;
+        if (templateSearchQuery && !template.searchText.includes(templateSearchQuery)) return false;
+        return true;
+    });
 
-        const groupMeta = TEMPLATE_GROUPS[groupKey];
-        const templatesByRegion = templates.reduce((groups, template) => {
-            if (!groups[template.region]) groups[template.region] = [];
-            groups[template.region].push(template);
-            return groups;
-        }, {});
+    const templatesByRegion = visibleTemplates.reduce((groups, template) => {
+        if (!groups[template.region]) groups[template.region] = [];
+        groups[template.region].push(template);
+        return groups;
+    }, {});
 
-        const stateCards = Object.keys(templatesByRegion)
-            .sort((a, b) => getTemplateRegionSortIndex(a) - getTemplateRegionSortIndex(b) || a.localeCompare(b))
-            .map(region => {
-                const stateTemplates = templatesByRegion[region].sort(sortTemplatesForDisplay);
-
-                return `
-                    <article class="template-state-card">
-                        <div class="template-state-heading">
-                            <div>
-                                <h4>${getTemplateStateLabel(region)}</h4>
-                                <p>${getTemplateStateBoardLabel(region, stateTemplates)}</p>
-                            </div>
-                            <span class="template-state-count">${stateTemplates.length} option${stateTemplates.length === 1 ? '' : 's'}</span>
+    const stateCards = Object.keys(templatesByRegion)
+        .sort((a, b) => getTemplateRegionSortIndex(a) - getTemplateRegionSortIndex(b) || a.localeCompare(b))
+        .map(region => {
+            const stateTemplates = templatesByRegion[region].sort(sortTemplatesForDisplay);
+            return `
+                <article class="template-state-card">
+                    <div class="template-state-heading">
+                        <div>
+                            <h4>${getTemplateStateLabel(region)}</h4>
+                            <p>${getTemplateStateBoardLabel(region, stateTemplates)}</p>
                         </div>
-                        <div class="template-option-list">
-                            ${stateTemplates.map(template => {
-                                const isCurrent = template.signature === currentSignature;
-                                return `
-                                    <button
-                                        type="button"
-                                        class="template-option ${isCurrent ? 'is-current' : ''}"
-                                        ${isCurrent ? 'disabled' : ''}
-                                        onclick="applyTemplate('${template.id}')">
-                                        <span class="template-option-main">
-                                            <strong>${getTemplateDisplayLabel(template)}</strong>
-                                            <small>${getTemplateDisplayMeta(template)}</small>
-                                        </span>
-                                        <span class="template-option-formula">${getTemplateFormulaText(template)}</span>
-                                        <span class="template-option-action">${isCurrent ? 'Loaded' : 'Use'}</span>
-                                    </button>
-                                `;
-                            }).join('')}
-                        </div>
-                    </article>
-                `;
-            }).join('');
-
-        return `
-            <section class="template-section">
-                <div class="template-section-header">
-                    <div>
-                        <span class="template-section-kicker">${groupMeta.title}</span>
-                        <h3>${getTemplateLevelHeading(groupKey)}</h3>
+                        <span class="template-state-count">${stateTemplates.length} option${stateTemplates.length === 1 ? '' : 's'}</span>
                     </div>
-                    <p>${groupMeta.description}</p>
-                </div>
-                <div class="template-state-grid">
-                    ${stateCards}
-                </div>
-            </section>
-        `;
-    }).join('');
+                    <div class="template-option-list">
+                        ${stateTemplates.map(template => {
+                            const isCurrent = template.signature === currentSignature;
+                            return `
+                                <button
+                                    type="button"
+                                    class="template-option ${isCurrent ? 'is-current' : ''}"
+                                    ${isCurrent ? 'disabled' : ''}
+                                    onclick="applyTemplate('${template.id}')">
+                                    <span class="template-option-main">
+                                        <strong>${getTemplateDisplayLabel(template)}</strong>
+                                        <small>${getTemplateDisplayMeta(template)}</small>
+                                    </span>
+                                    <span class="template-option-formula">${getTemplateFormulaText(template)}</span>
+                                    <span class="template-option-action">${isCurrent ? 'Loaded' : 'Use'}</span>
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+                </article>
+            `;
+        }).join('');
 
-    templateLibrary.innerHTML = renderedSections || `
+    templateLibrary.innerHTML = stateCards ? `<div class="template-state-grid">${stateCards}</div>` : `
         <div class="template-empty-state">
             <i class="fas fa-compass"></i>
             <h3>No templates match that search</h3>
-            <p>Try another state name or switch between 10th and Intermediate.</p>
+            <p>Try searching for a different state or board.</p>
         </div>
     `;
+}
+
+function renderBranchSelection() {
+    const visibleBranches = engineeringData.filter(branch => {
+        if (!templateSearchQuery) return true;
+        return branch.name.toLowerCase().includes(templateSearchQuery);
+    });
+
+    const branchList = visibleBranches.map(branch => {
+        // Find how many semesters have data
+        const semCount = Object.keys(branch.semesters).length;
+        return `
+            <div class="branch-item" onclick="goToWizardStep('semester', engineeringData.find(b => b.name === '${branch.name}'))">
+                <span>${branch.name}</span>
+                <span style="font-size: 13px; color: var(--text-muted); font-weight: normal;">${semCount} Semesters <i class="fas fa-chevron-right" style="margin-left: 8px;"></i></span>
+            </div>
+        `;
+    }).join('');
+
+    templateLibrary.innerHTML = branchList ? `<div class="branch-list">${branchList}</div>` : `
+        <div class="template-empty-state">
+            <i class="fas fa-compass"></i>
+            <h3>No branches found</h3>
+            <p>Try searching for a different branch name.</p>
+        </div>
+    `;
+}
+
+function renderSemesterSelection() {
+    const semesters = Object.keys(selectedBranch.semesters).sort((a, b) => parseInt(a) - parseInt(b));
+    
+    const semCards = semesters.map(sem => {
+        const subjects = selectedBranch.semesters[sem];
+        return `
+            <div class="wizard-card" onclick="applyEngineeringTemplate('${selectedBranch.name}', ${sem})" style="padding: 16px;">
+                <h3 style="margin-bottom: 8px;">Semester ${sem}</h3>
+                <p>${subjects.length} Subjects</p>
+            </div>
+        `;
+    }).join('');
+
+    templateLibrary.innerHTML = `<div class="wizard-grid">${semCards}</div>`;
+}
+
+function applyEngineeringTemplate(branchName, semester) {
+    const branch = engineeringData.find(b => b.name === branchName);
+    const subjects = branch.semesters[semester];
+    
+    const message = [
+        `Apply ${branchName} - Semester ${semester}?`,
+        '',
+        'This will replace your current subjects.',
+        'Some marks may reset if the subject names change.'
+    ].join('\n');
+
+    if (!confirm(message)) return;
+
+    const nextSubjects = [...subjects];
+    const nextSubjectMaxMarks = {};
+    nextSubjects.forEach(sub => nextSubjectMaxMarks[sub] = 100);
+
+    settings.subjects = nextSubjects;
+    settings.subjectMaxMarks = nextSubjectMaxMarks;
+
+    students = students.map(student => {
+        const previousMarks = student.marks || {};
+        const nextMarks = {};
+
+        nextSubjects.forEach(subject => {
+            const rawValue = parseInt(previousMarks[subject], 10);
+            const safeValue = Number.isFinite(rawValue) ? rawValue : 0;
+            nextMarks[subject] = Math.min(Math.max(safeValue, 0), 100);
+        });
+
+        return { ...student, marks: nextMarks };
+    });
+
+    editingId = null;
+    updateContainer.classList.add('hidden');
+
+    saveState();
+    renderSubjectManagement();
+    templatesModal.classList.add('hidden');
+    showToast(`Semester ${semester} loaded successfully!`);
 }
 
 window.applyTemplate = function(templateId) {
@@ -1796,6 +3305,59 @@ window.applyTemplate = function(templateId) {
 
 // --- EVENT LISTENERS ---
 function setupEventListeners() {
+    // Pull to refresh logic
+    let touchStartY = 0;
+    let ptrContainer = document.createElement('div');
+    ptrContainer.className = 'ptr-container';
+    ptrContainer.innerHTML = '<div class="ptr-spinner"><i class="fas fa-sync-alt"></i></div>';
+    document.body.appendChild(ptrContainer);
+    
+    let ptrSpinner = ptrContainer.querySelector('.ptr-spinner');
+    let isPulling = false;
+
+    document.addEventListener('touchstart', (e) => {
+        if (window.scrollY === 0) {
+            touchStartY = e.touches[0].clientY;
+            isPulling = true;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isPulling) return;
+        const touchY = e.touches[0].clientY;
+        const diff = touchY - touchStartY;
+        
+        if (diff > 0 && window.scrollY === 0) {
+            e.preventDefault(); // Prevent default scroll
+            ptrContainer.style.height = Math.min(diff, 100) + 'px';
+            ptrSpinner.style.transform = `translateY(${Math.max(100 - diff, 0)}%)`;
+            ptrSpinner.style.opacity = Math.min(diff / 100, 1);
+            if (diff > 80) ptrSpinner.style.color = 'var(--primary)';
+            else ptrSpinner.style.color = 'var(--text-muted)';
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+        if (!isPulling) return;
+        isPulling = false;
+        
+        const currentHeight = parseInt(ptrContainer.style.height || '0');
+        if (currentHeight > 80) {
+            // Trigger refresh
+            ptrSpinner.classList.add('spinning');
+            ptrContainer.style.height = '60px';
+            ptrSpinner.style.transform = 'translateY(0)';
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        } else {
+            // Cancel refresh
+            ptrContainer.style.height = '0';
+            ptrSpinner.style.transform = 'translateY(100%)';
+        }
+    });
+
     document.querySelectorAll('.menu-item[href="#"]').forEach(link => {
         link.addEventListener('click', (e) => e.preventDefault());
     });
@@ -1813,6 +3375,14 @@ function setupEventListeners() {
         e.preventDefault();
         if (isMobileViewport()) closeSidebar();
         settingsModal.classList.remove('hidden');
+    });
+
+    document.getElementById('template-back-btn').addEventListener('click', goBackWizardStep);
+    
+    // Search input listener update
+    document.getElementById('template-search').addEventListener('input', (e) => {
+        templateSearchQuery = e.target.value.toLowerCase().trim();
+        renderTemplateWizard();
     });
 
     btnTemplates.addEventListener('click', (e) => {
@@ -1925,17 +3495,8 @@ function setupEventListeners() {
         currentSort = e.target.value;
         renderApp();
     });
-    templateSearchInput.addEventListener('input', (e) => {
-        templateSearchQuery = e.target.value.toLowerCase().trim();
-        renderTemplateLibrary();
-    });
-    templateFiltersContainer.addEventListener('click', (e) => {
-        const chip = e.target.closest('[data-filter]');
-        if (!chip) return;
-        activeTemplateFilter = chip.dataset.filter;
-        renderTemplateFilters();
-        renderTemplateLibrary();
-    });
+
+
 
     // Export Dropdown
     btnExportMenu.addEventListener('click', () => exportMenu.classList.toggle('hidden'));
