@@ -593,6 +593,8 @@ body.sidebar-collapsed .menu-item.active {
     gap: 24px; /* 8pt scale */
     align-items: start;
     min-width: 0;
+    position: relative;
+    z-index: 1;
 }
 
 .content-grid > * {
@@ -625,7 +627,7 @@ body.sidebar-collapsed .menu-item.active {
     box-shadow: var(--shadow-md), var(--shadow-glow);
     position: relative;
     overflow: visible;
-    z-index: 10;
+    z-index: 99;
 }
 
 [data-theme="dark"] .quick-add-card {
