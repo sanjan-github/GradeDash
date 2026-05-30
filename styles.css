@@ -575,7 +575,13 @@ body.sidebar-collapsed .menu-item.active {
     align-items: center;
     gap: 4px;
 }
-.primary-kpi .trend { background: rgba(255,255,255,0.15); color: #FFFFFF; }
+.primary-kpi .trend,
+.primary-kpi .trend.up,
+.primary-kpi .trend.down,
+.primary-kpi .trend.neutral { 
+    background: rgba(255,255,255,0.2); 
+    color: #ffffff; 
+}
 .trend.up { color: var(--success); background: var(--primary-light); }
 .trend.down { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
 .trend.neutral { color: var(--text-secondary); background: var(--bg-main); }
@@ -618,7 +624,7 @@ body.sidebar-collapsed .menu-item.active {
     border: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: var(--shadow-md), var(--shadow-glow);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 [data-theme="dark"] .quick-add-card {
@@ -632,6 +638,8 @@ body.sidebar-collapsed .menu-item.active {
     top: 0; left: 0; right: 0;
     height: 4px;
     background: var(--gradient-primary);
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
 }
 
 /* Tabs for Quick Add */
