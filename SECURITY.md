@@ -1,21 +1,21 @@
 # Security Policy
 
-## Supported Versions
+## Supported branch
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Security fixes are intended for the current `main` branch only.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+## Reporting a vulnerability
 
-## Reporting a Vulnerability
+If you discover a security issue in GradeDash:
 
-Use this section to tell people how to report a vulnerability.
+1. Do not open a public issue with exploit details.
+2. Share a private report with the repository owner or maintainer.
+3. Include a short description, reproduction steps, impact, and any suggested fix if you have one.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+The goal is to acknowledge credible reports quickly, verify the issue, and ship a fix before public disclosure whenever possible.
+
+## Scope notes
+
+- The web dashboard stores data in the browser with `localStorage`.
+- The Python CLI stores data in `students.txt`.
+- User-provided content is local to the machine unless the operator exports or shares it manually.

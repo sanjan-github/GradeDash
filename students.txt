@@ -1,2 +1,2 @@
-sanjan gained 89 marks 
-anjali gained 98 marks 
+anjali|98
+sanjan|89

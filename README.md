@@ -1,49 +1,55 @@
-# Student Marks Manager
+# GradeDash
 
-This project is a simple student marks manager with two parts:
+GradeDash is a polished student marks workspace with two complementary tools:
 
-1. A web dashboard using `index.html`, `styles.css`, and `app.js`.
-2. A Python command-line tool in `menu.py`.
+1. A browser-based dashboard for building a roster, managing subjects, applying board templates, and exporting reports.
+2. A Python CLI for quick mark entry and analysis from the terminal.
 
-## What it does
+## Web dashboard
 
-- The web dashboard lets you add students, enter marks, and see summary data.
-- The dashboard can show total students, passed/failed count, average score, and top students.
-- The dashboard lets you search students and sort the list.
-- It can export data to PDF, Excel, or Word files.
-- The Python tool lets you add student names and marks from the terminal.
-- The Python tool can show all records, count passed/failed students, find top and lowest scores, update marks, delete students, and search by name.
+Open `index.html` in a browser to use the dashboard.
 
-## Files in this project
+### Highlights
 
-- `index.html` — the main web page for the browser dashboard.
-- `styles.css` — the dashboard design and layout.
-- `app.js` — the JavaScript logic for the web dashboard.
-- `menu.py` — the Python CLI script for terminal-based student mark management.
-- `students.txt` — a text file sample how the Python tool saves results on exit.
+- Premium responsive layout with desktop and mobile support
+- Student-first and subject-first score entry flows
+- Dynamic subject management with per-subject maximum marks
+- Qualification rules based on minimum marks or minimum percentage
+- Search, sorting, empty-state guidance, and leaderboard insights
+- Board-template library for 10th, intermediate, and engineering structures
+- Export to PDF, Excel, and Word
+- Theme toggle with saved preference
+- Local persistence with `localStorage`
 
-## How to use the web dashboard
+## Python CLI
 
-1. Open `index.html` in your web browser.
-2. Use the dashboard menus to add subjects, students, and marks.
-3. You can save or export the data using the export buttons.
-4. The dashboard data is stored in your browser and stays there until you clear it.
-
-## How to use the Python CLI
-
-1. Open a terminal in this project folder.
-2. Run:
+Run the terminal tool with:
 
 ```powershell
 python menu.py
 ```
 
-3. Follow the menu choices to add students, display records, analyze results, update marks, delete students, or search.
-4. When you exit, the data is saved to `students.txt`.
+### CLI capabilities
+
+- Load existing records from `students.txt`
+- Add, update, delete, and search students
+- View pass/fail status, class averages, and top/lowest scores
+- Save data back to `students.txt` on exit
+
+The CLI stores records in a simple `name|mark` text format and also understands the older `name gained 90 marks` lines for backward compatibility.
+
+## Project files
+
+- `index.html` - application structure and modal markup
+- `styles.css` - visual system, responsive layout, theming, and component styles
+- `js/state.js` - storage normalization and initial state hydration
+- `js/app.js` - dashboard logic, rendering, validation, modals, and export flows
+- `js/data/templates.js` - board and semester template catalog
+- `menu.py` - terminal-based student marks manager
+- `students.txt` - CLI data file
 
 ## Notes
 
-- The web app stores data in browser local storage.
-- The Python tool stores data in memory while it runs and writes it to `students.txt` when it exits.
-- The web app and the Python CLI do not share the same student data.
-
+- The web dashboard and the Python CLI do not share the same storage layer.
+- Browser data stays in `localStorage` until the user clears it.
+- Export features rely on the external client-side libraries loaded in `index.html`.
