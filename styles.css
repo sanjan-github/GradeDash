@@ -781,7 +781,21 @@ tr:hover td { background-color: var(--primary-light); cursor: pointer; }
 }
 
 .badge.pass { background-color: var(--primary-light); color: var(--success); }
-.badge.fail { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
+.badge.fail {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
+.failing-mark {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-block;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
 
 /* Actions */
 .btn-action {

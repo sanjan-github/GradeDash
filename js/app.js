@@ -64,8 +64,20 @@ function getSortedStudents() {
         switch (currentSort) {
             case 'entry-asc': return a.id - b.id;
             case 'entry-desc': return b.id - a.id;
-            case 'marks-desc': return bTotal - aTotal;
-            case 'marks-asc': return aTotal - bTotal;
+            case 'marks-desc': {
+                const aPassed = hasPassed(a);
+                const bPassed = hasPassed(b);
+                if (aPassed && !bPassed) return -1;
+                if (!aPassed && bPassed) return 1;
+                return bTotal - aTotal;
+            }
+            case 'marks-asc': {
+                const aPassed = hasPassed(a);
+                const bPassed = hasPassed(b);
+                if (aPassed && !bPassed) return 1;
+                if (!aPassed && bPassed) return -1;
+                return aTotal - bTotal;
+            }
             case 'name-asc': return a.name.localeCompare(b.name);
             case 'name-desc': return b.name.localeCompare(a.name);
             default: return 0;
@@ -213,7 +225,17 @@ function renderSubjectManagement() {
 }
 
 window.updateSubjectMax = function(sub, val) {
-    settings.subjectMaxMarks[sub] = parseInt(val) || 100;
+    const newMax = parseInt(val) || 100;
+    settings.subjectMaxMarks[sub] = newMax;
+    
+    students.forEach(student => {
+        if (student.marks && student.marks[sub] !== undefined) {
+            if (student.marks[sub] > newMax) {
+                student.marks[sub] = newMax;
+            }
+        }
+    });
+    
     saveState();
 }
 
@@ -240,9 +262,23 @@ function renderTable(data) {
         const total = getTotalMark(s);
         const percentage = maxTotal === 0 ? "0.0" : ((total / maxTotal) * 100).toFixed(1);
         
-        const subjectCells = settings.subjects.map(sub => `
-            <td data-label="${sub}">${s.marks && s.marks[sub] !== undefined ? s.marks[sub] : '-'}</td>
-        `).join('');
+        const subjectCells = settings.subjects.map(sub => {
+            let markVal = s.marks && s.marks[sub] !== undefined ? s.marks[sub] : 0;
+            let maxMark = settings.subjectMaxMarks[sub] || 100;
+            let subPassed = false;
+            
+            if (settings.qualifyType === 'marks') {
+                subPassed = markVal >= settings.qualifyValue;
+            } else {
+                let percentage = maxMark === 0 ? 100 : (markVal / maxMark) * 100;
+                subPassed = percentage >= settings.qualifyValue;
+            }
+            
+            const displayMark = s.marks && s.marks[sub] !== undefined ? markVal : '-';
+            const displayHTML = !subPassed && displayMark !== '-' ? `<span class="failing-mark">${displayMark}</span>` : displayMark;
+            
+            return `<td data-label="${sub}">${displayHTML}</td>`;
+        }).join('');
         
         return `
             <tr>
@@ -284,7 +320,8 @@ function renderMetrics(data) {
 }
 
 function renderPodium() {
-    const topStudents = [...students].sort((a, b) => getTotalMark(b) - getTotalMark(a)).slice(0, 3);
+    const passedStudents = students.filter(s => hasPassed(s));
+    const topStudents = [...passedStudents].sort((a, b) => getTotalMark(b) - getTotalMark(a)).slice(0, 3);
     
     const updateRank = (rank, data) => {
         document.getElementById(`rank${rank}-name`).textContent = data ? data.name : '-';
