@@ -625,6 +625,7 @@ body.sidebar-collapsed .menu-item.active {
     box-shadow: var(--shadow-md), var(--shadow-glow);
     position: relative;
     overflow: visible;
+    z-index: 10;
 }
 
 [data-theme="dark"] .quick-add-card {
