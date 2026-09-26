@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GradeDash | Student Performance Studio</title>
-    <meta name="description" content="Premium dashboard for managing student marks, board templates, and class insights.">
-    <meta name="theme-color" content="#0e7e64">
+    <title>GradeDash | Class marks</title>
+    <meta name="description" content="Enter, review, and export marks for a class.">
+    <meta name="theme-color" content="#176b5b">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
                     <span class="brand-icon"><i class="fas fa-graduation-cap"></i></span>
                     <div>
                         <span class="brand-name">GradeDash</span>
-                        <span class="brand-caption">Student performance studio</span>
+                        <span class="brand-caption">Class marks</span>
                     </div>
                 </div>
                 <button type="button" class="sidebar-close-btn" id="btn-sidebar-close" aria-label="Close menu">
@@ -55,9 +55,9 @@
             </nav>
 
             <div class="sidebar-panel">
-                <span class="sidebar-panel-kicker">Quality check</span>
-                <h2>Keep the class view sharp.</h2>
-                <p>Track pass health, tune qualification rules, and switch board templates without losing your flow.</p>
+                    <span class="sidebar-panel-kicker">Before you start</span>
+                    <h2>Set the subjects first.</h2>
+                    <p>Choose a template or add subjects in Rules. The roster uses those maxima for every total and percentage.</p>
             </div>
         </aside>
 
@@ -73,7 +73,7 @@
                     <div class="search-shell">
                         <label for="global-search" class="sr-only">Search students</label>
                         <i class="fas fa-search"></i>
-                        <input type="search" id="global-search" placeholder="Search students or filter the roster">
+                        <input type="search" id="global-search" placeholder="Find a student by name">
                     </div>
                 </div>
 
@@ -92,9 +92,9 @@
             <div class="dashboard-scroll">
                 <section class="hero-panel">
                     <div class="hero-copy">
-                        <span class="hero-kicker">Performance command center</span>
-                        <h1>See the class clearly, act fast, and keep every score accurate.</h1>
-                        <p>GradeDash turns raw marks into a polished workflow with strong hierarchy, board templates, roster exports, and instant class signals.</p>
+                    <span class="hero-kicker">Marks for this class</span>
+                        <h1>Enter marks. Check the totals. Export the sheet.</h1>
+                        <p>Keep the roster and subject limits in one place. Add students, fill in scores, and see who is below the rule you set.</p>
                         <div class="hero-actions">
                             <button type="button" class="btn btn-primary" data-action="open-templates">
                                 <i class="fas fa-layer-group"></i>
@@ -119,7 +119,7 @@
                             <small>Applied per subject</small>
                         </article>
                         <article class="hero-insight-card">
-                            <span>Template readiness</span>
+                                <span>Available templates</span>
                             <strong id="overview-ready-templates">0</strong>
                             <small>State boards plus national layouts</small>
                         </article>
@@ -178,7 +178,7 @@
                             <div class="card-header card-header-stack">
                                 <div>
                                     <span class="card-kicker">Score entry</span>
-                                    <h2 id="composer-title">Capture marks without breaking rhythm</h2>
+                                    <h2 id="composer-title">Enter marks</h2>
                                     <p>Work student-by-student for new entries, or switch to a subject view for fast class-wide updates.</p>
                                 </div>
                                 <div class="tabs" role="tablist" aria-label="Entry modes">
@@ -266,8 +266,8 @@
                                     <div class="empty-state-media" aria-hidden="true">
                                         <i class="fas fa-folder-open"></i>
                                     </div>
-                                    <h3 id="empty-state-title">Start your cohort</h3>
-                                    <p id="empty-state-copy">Add the first student to unlock ranking, analytics, and polished exports.</p>
+                                    <h3 id="empty-state-title">No students yet</h3>
+                                    <p id="empty-state-copy">Add a student to start entering marks.</p>
                                     <button type="button" class="btn btn-primary" data-action="focus-add-form">
                                         <i class="fas fa-plus"></i>
                                         <span>Add first student</span>
@@ -281,9 +281,9 @@
                         <section class="card insight-card" aria-labelledby="insight-title">
                             <div class="card-header card-header-stack">
                                 <div>
-                                    <span class="card-kicker">Cohort signal</span>
-                                    <h2 id="insight-title">What deserves attention right now</h2>
-                                    <p>Quick context for the current subject setup and pass criteria.</p>
+                                    <span class="card-kicker">Class notes</span>
+                                    <h2 id="insight-title">A quick read of the roster</h2>
+                                    <p>These figures use the current subjects and qualification rule.</p>
                                 </div>
                             </div>
 
@@ -294,7 +294,7 @@
                                     <small id="insight-top-score">No scores yet</small>
                                 </article>
                                 <article class="insight-stat">
-                                    <span>At-risk students</span>
+                                    <span>Below the rule</span>
                                     <strong id="insight-attention-count">0</strong>
                                     <small id="insight-pass-rule">Awaiting criteria</small>
                                 </article>
@@ -302,7 +302,7 @@
 
                             <div class="subject-overview">
                                 <div class="subject-overview-header">
-                                    <h3>Current subject mix</h3>
+                                    <h3>Subjects in use</h3>
                                     <span id="insight-total-max">0 total max</span>
                                 </div>
                                 <div class="subject-pill-list" id="subject-highlight-list"></div>
@@ -311,9 +311,9 @@
 
                         <section class="card podium-card" aria-labelledby="podium-title">
                             <div class="podium-card-header">
-                                <span class="podium-kicker">Leaderboard</span>
-                                <h2 id="podium-title">Top students</h2>
-                                <p>Highest totals across the active subject structure.</p>
+                                <span class="podium-kicker">Highest totals</span>
+                                <h2 id="podium-title">Leading marks</h2>
+                                <p>Students with the highest totals in this roster.</p>
                             </div>
                             <div class="podium-container">
                                 <article class="podium-item rank-2">

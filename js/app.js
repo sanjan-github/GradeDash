@@ -591,7 +591,7 @@ function renderTable(data) {
         dom.emptyState.classList.remove('hidden');
         setEmptyState(
             'Start your cohort',
-            'Add the first student to unlock ranking, analytics, and polished exports.',
+            'Add a student to start entering marks.',
             'focus-add-form',
             'Add first student',
             'fas fa-plus'
