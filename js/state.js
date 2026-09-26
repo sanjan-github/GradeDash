@@ -108,9 +108,21 @@ function normalizeStoredStudents(rawStudents, subjectList, subjectMaxMarks) {
         .filter(Boolean);
 }
 
-let settings = normalizeStoredSettings(JSON.parse(localStorage.getItem('gradeDashSettings')));
+function readStoredJson(key, fallback) {
+    const rawValue = localStorage.getItem(key);
+    if (!rawValue) return fallback;
+
+    try {
+        return JSON.parse(rawValue);
+    } catch (error) {
+        console.warn(`GradeDash ignored invalid saved data for ${key}.`, error);
+        return fallback;
+    }
+}
+
+let settings = normalizeStoredSettings(readStoredJson('gradeDashSettings', null));
 let students = normalizeStoredStudents(
-    JSON.parse(localStorage.getItem('studentsData')),
+    readStoredJson('studentsData', []),
     settings.subjects,
     settings.subjectMaxMarks
 );

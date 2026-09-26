@@ -508,11 +508,11 @@ function renderMetrics() {
 
     const qualifiedCount = students.filter(hasPassed).length;
     const attentionCount = students.length - qualifiedCount;
-    const averageTotal = students.reduce((sum, student) => sum + getTotalMark(student), 0) / students.length;
+    const averagePercentage = students.reduce((sum, student) => sum + getPercentage(student), 0) / students.length;
 
     dom.kpiPassed.textContent = String(qualifiedCount);
     dom.kpiFailed.textContent = String(attentionCount);
-    dom.kpiAverage.textContent = averageTotal.toFixed(1);
+    dom.kpiAverage.textContent = `${averagePercentage.toFixed(1)}%`;
     dom.kpiPassRate.textContent = `${Math.round((qualifiedCount / students.length) * 100)}% pass rate`;
     dom.kpiFailRate.textContent = `${Math.round((attentionCount / students.length) * 100)}% below target`;
 }
@@ -1295,6 +1295,7 @@ function handleAddSubjectMarks(event) {
         return;
     }
 
+    const maxMark = settings.subjectMaxMarks[subject] || 100;
     const markInputs = [...dom.addSubjectForm.querySelectorAll('.subject-student-mark-input')];
 
     for (const input of markInputs) {

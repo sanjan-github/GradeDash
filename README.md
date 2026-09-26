@@ -53,3 +53,14 @@ The CLI stores records in a simple `name|mark` text format and also understands 
 - The web dashboard and the Python CLI do not share the same storage layer.
 - Browser data stays in `localStorage` until the user clears it.
 - Export features rely on the external client-side libraries loaded in `index.html`.
+
+## Development checks
+
+Run the lightweight regression suite and JavaScript syntax checks with:
+
+```bash
+node --test tests/regressions.test.js
+node --check js/state.js
+node --check js/data/templates.js
+node --check js/app.js
+```
