@@ -92,9 +92,9 @@
             <div class="dashboard-scroll">
                 <section class="hero-panel">
                     <div class="hero-copy">
-                    <span class="hero-kicker">Marks for this class</span>
-                        <h1>Enter marks. Check the totals. Export the sheet.</h1>
-                        <p>Keep the roster and subject limits in one place. Add students, fill in scores, and see who is below the rule you set.</p>
+                    <span class="hero-kicker">Class workspace</span>
+                        <h1>Keep every mark in one place.</h1>
+                        <p>Add your students, enter their marks, and let the roster take care of the totals.</p>
                         <div class="hero-actions">
                             <button type="button" class="btn btn-primary" data-action="open-templates">
                                 <i class="fas fa-layer-group"></i>
@@ -177,9 +177,9 @@
                         <section class="card composer-card" aria-labelledby="composer-title">
                             <div class="card-header card-header-stack">
                                 <div>
-                                    <span class="card-kicker">Score entry</span>
-                                    <h2 id="composer-title">Enter marks</h2>
-                                    <p>Work student-by-student for new entries, or switch to a subject view for fast class-wide updates.</p>
+                                    <span class="card-kicker">Add marks</span>
+                                    <h2 id="composer-title">Start with a student</h2>
+                                    <p>Enter one student at a time, or update a whole subject in one pass.</p>
                                 </div>
                                 <div class="tabs" role="tablist" aria-label="Entry modes">
                                     <button type="button" class="tab-btn active" id="tab-by-student" aria-selected="true">By student</button>
@@ -187,11 +187,11 @@
                                 </div>
                             </div>
 
-                            <form id="add-student-form" novalidate>
+                            <form id="add-student-form" role="tabpanel" aria-labelledby="tab-by-student" novalidate>
                                 <div class="dynamic-subjects-grid" id="student-form-inputs"></div>
                             </form>
 
-                            <form id="add-subject-form" class="hidden" novalidate>
+                            <form id="add-subject-form" class="hidden" role="tabpanel" aria-labelledby="tab-by-subject" novalidate>
                                 <div class="subject-entry-layout">
                                     <div class="form-group">
                                         <label for="subject-select">Subject</label>
@@ -218,11 +218,11 @@
                         </section>
 
                         <section class="card roster-card" aria-labelledby="roster-title">
-                            <div class="card-header">
-                                <div>
-                                    <span class="card-kicker">Records</span>
+                                <div class="card-header">
+                                    <div>
+                                    <span class="card-kicker">Your class</span>
                                     <h2 id="roster-title">Student roster</h2>
-                                    <p id="results-summary">Showing 0 students.</p>
+                                    <p id="results-summary">No students added yet.</p>
                                 </div>
 
                                 <div class="list-controls">
