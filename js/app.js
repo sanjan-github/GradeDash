@@ -538,6 +538,10 @@ function renderInsights() {
 }
 
 function renderPodium() {
+    if (!dom.rank1Name || !dom.rank1Mark || !dom.rank2Name || !dom.rank2Mark || !dom.rank3Name || !dom.rank3Mark) {
+        return;
+    }
+
     const topStudents = getTopStudents(3);
     const slots = [
         { name: dom.rank1Name, mark: dom.rank1Mark, student: topStudents[0] },

@@ -42,7 +42,7 @@
                 <div class="menu-section">System</div>
                 <button type="button" class="menu-item menu-item-settings" id="btn-settings">
                     <i class="fas fa-sliders"></i>
-                    <span>Settings</span>
+                    <span>Rules &amp; subjects</span>
                 </button>
                 <button type="button" class="menu-item menu-item-templates" id="btn-templates">
                     <i class="fas fa-layer-group"></i>
@@ -55,9 +55,9 @@
             </nav>
 
             <div class="sidebar-panel">
-                    <span class="sidebar-panel-kicker">Before you start</span>
-                    <h2>Set the subjects first.</h2>
-                    <p>Choose a template or add subjects in Rules. The roster uses those maxima for every total and percentage.</p>
+                    <span class="sidebar-panel-kicker">Class setup</span>
+                    <h2>Keep the rules close.</h2>
+                    <p>Use Rules &amp; subjects when the class structure changes. The roster will use those limits for every total and percentage.</p>
             </div>
         </aside>
 
@@ -65,46 +65,25 @@
 
         <main class="main-content">
             <header class="topbar">
-                <div class="topbar-leading">
-                    <button type="button" class="sidebar-toggle-btn" id="btn-sidebar-toggle" aria-label="Toggle menu">
-                        <i class="fas fa-bars"></i>
-                        <span>Menu</span>
-                    </button>
-                    <div class="search-shell">
-                        <label for="global-search" class="sr-only">Search students</label>
-                        <i class="fas fa-search"></i>
-                        <input type="search" id="global-search" placeholder="Find a student by name">
+                    <div class="topbar-leading">
+                        <button type="button" class="sidebar-toggle-btn" id="btn-sidebar-toggle" aria-label="Toggle menu">
+                            <i class="fas fa-bars"></i>
+                            <span>Menu</span>
+                        </button>
+                        <div class="search-shell">
+                            <label for="global-search" class="sr-only">Search the roster</label>
+                            <i class="fas fa-search"></i>
+                            <input type="search" id="global-search" placeholder="Search the roster">
+                        </div>
                     </div>
-                </div>
-
-                <div class="topbar-actions">
-                    <button type="button" class="btn btn-ghost" data-action="open-templates">
-                        <i class="fas fa-layer-group"></i>
-                        <span>Templates</span>
-                    </button>
-                    <button type="button" class="btn btn-ghost" data-action="open-settings">
-                        <i class="fas fa-sliders"></i>
-                        <span>Rules</span>
-                    </button>
-                </div>
             </header>
 
             <div class="dashboard-scroll">
                 <section class="hero-panel">
                     <div class="hero-copy">
                     <span class="hero-kicker">Marks for this class</span>
-                        <h1>Enter marks. Check the totals. Export the sheet.</h1>
-                        <p>Keep the roster and subject limits in one place. Add students, fill in scores, and see who is below the rule you set.</p>
-                        <div class="hero-actions">
-                            <button type="button" class="btn btn-primary" data-action="open-templates">
-                                <i class="fas fa-layer-group"></i>
-                                <span>Load a board template</span>
-                            </button>
-                            <button type="button" class="btn btn-secondary" data-action="focus-add-form">
-                                <i class="fas fa-user-plus"></i>
-                                <span>Add a student</span>
-                            </button>
-                        </div>
+                        <h1>Enter marks. See what needs attention.</h1>
+                        <p>Keep the roster and subject limits in one place. Add students, fill in scores, and review the class when you are ready.</p>
                     </div>
 
                     <div class="hero-insights">
@@ -306,34 +285,6 @@
                                     <span id="insight-total-max">0 total max</span>
                                 </div>
                                 <div class="subject-pill-list" id="subject-highlight-list"></div>
-                            </div>
-                        </section>
-
-                        <section class="card podium-card" aria-labelledby="podium-title">
-                            <div class="podium-card-header">
-                                <span class="podium-kicker">Highest totals</span>
-                                <h2 id="podium-title">Leading marks</h2>
-                                <p>Students with the highest totals in this roster.</p>
-                            </div>
-                            <div class="podium-container">
-                                <article class="podium-item rank-2">
-                                    <div class="avatar"><i class="fas fa-user"></i></div>
-                                    <div class="podium-bar">2nd</div>
-                                    <div class="rank-name" id="rank2-name">-</div>
-                                    <div class="rank-mark" id="rank2-mark">-</div>
-                                </article>
-                                <article class="podium-item rank-1">
-                                    <div class="avatar crown"><i class="fas fa-crown"></i></div>
-                                    <div class="podium-bar">1st</div>
-                                    <div class="rank-name" id="rank1-name">-</div>
-                                    <div class="rank-mark" id="rank1-mark">-</div>
-                                </article>
-                                <article class="podium-item rank-3">
-                                    <div class="avatar"><i class="fas fa-user"></i></div>
-                                    <div class="podium-bar">3rd</div>
-                                    <div class="rank-name" id="rank3-name">-</div>
-                                    <div class="rank-mark" id="rank3-mark">-</div>
-                                </article>
                             </div>
                         </section>
 

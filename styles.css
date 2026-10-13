@@ -2394,3 +2394,203 @@ body[data-theme="dark"] .topbar.scrolled {
 .sidebar-panel-kicker,
 .modal-kicker { letter-spacing: 0.08em; }
 .subject-pill { padding: 6px 8px; }
+
+
+/* GradeDash friendly workspace pass: one clear path, less chrome, calmer feedback. */
+.topbar-leading {
+    flex: 1 1 auto;
+}
+
+.search-shell {
+    width: min(100%, 560px);
+    min-width: 0;
+    box-shadow: none;
+    transition: border-color var(--transition), background var(--transition);
+}
+
+.search-shell:focus-within {
+    border-color: var(--primary);
+    background: var(--surface-strong);
+}
+
+.hero-panel {
+    grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr) !important;
+    gap: 20px !important;
+    margin-top: 0;
+    border-left-width: 4px;
+}
+
+.hero-copy h1 {
+    max-width: 18ch !important;
+}
+
+.hero-copy p {
+    max-width: 58ch !important;
+}
+
+.hero-insights {
+    align-self: stretch;
+    border-left: 0 !important;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+}
+
+.hero-insight-card {
+    padding: 8px 16px !important;
+}
+
+.kpi-grid {
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.kpi-card {
+    min-height: 132px;
+    transition: border-color var(--transition), background var(--transition), transform var(--transition);
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px) !important;
+    border-color: var(--border-strong);
+}
+
+.card-header h2,
+.settings-section-header h3 {
+    letter-spacing: -0.025em;
+}
+
+.card-header p,
+.settings-section-header p,
+.subject-overview p {
+    max-width: 58ch;
+}
+
+.empty-state {
+    min-height: 260px;
+    padding: 28px 20px;
+    border: 1px dashed var(--border-strong);
+    background: var(--surface-muted);
+}
+
+.empty-state-media {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 14px;
+    background: var(--primary-soft);
+    color: var(--primary);
+}
+
+.btn,
+.menu-item,
+.tab-btn,
+.close-modal,
+.btn-action {
+    transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition), opacity var(--transition);
+}
+
+.btn:active,
+.menu-item:active,
+.tab-btn:active,
+.close-modal:active,
+.btn-action:active {
+    transform: translateY(1px) !important;
+}
+
+.sidebar-panel {
+    background: var(--surface-muted) !important;
+    border-left: 3px solid var(--primary);
+}
+
+@media (max-width: 900px) {
+    .hero-panel {
+        grid-template-columns: 1fr !important;
+    }
+
+    .hero-copy h1 {
+        max-width: 24ch !important;
+    }
+
+    .hero-insights {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        border-top: 1px solid var(--border) !important;
+        padding-top: 10px;
+    }
+}
+
+@media (max-width: 620px) {
+    .topbar {
+        gap: 10px;
+        padding: 12px 16px 10px;
+    }
+
+    .sidebar-toggle-btn span {
+        display: none;
+    }
+
+    .sidebar-toggle-btn {
+        width: 42px;
+        padding: 0;
+    }
+
+    .search-shell input {
+        min-height: 46px;
+    }
+
+    .dashboard-scroll {
+        padding: 0 16px 28px;
+    }
+
+    .hero-panel {
+        padding: 20px !important;
+        border-left-width: 3px;
+    }
+
+    .hero-copy h1 {
+        font-size: clamp(1.8rem, 8vw, 2.35rem) !important;
+    }
+
+    .hero-insights {
+        grid-template-columns: 1fr !important;
+        gap: 0;
+    }
+
+    .hero-insight-card {
+        justify-content: flex-start !important;
+        padding: 10px 0 !important;
+        border-left: 0 !important;
+        border-top: 1px solid var(--border) !important;
+    }
+
+    .hero-insight-card:first-child {
+        border-top: 0 !important;
+    }
+
+    .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .kpi-card {
+        min-height: 116px;
+        padding: 16px;
+    }
+
+    .card-header,
+    .card-header-stack {
+        gap: 14px;
+    }
+
+    .card-header h2 {
+        font-size: 1.25rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
