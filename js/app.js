@@ -64,18 +64,6 @@ const dom = {
     insightPassRule: document.getElementById('insight-pass-rule'),
     insightTotalMax: document.getElementById('insight-total-max'),
     subjectHighlightList: document.getElementById('subject-highlight-list'),
-    rank1Name: document.getElementById('rank1-name'),
-    rank1Mark: document.getElementById('rank1-mark'),
-    rank2Name: document.getElementById('rank2-name'),
-    rank2Mark: document.getElementById('rank2-mark'),
-    rank3Name: document.getElementById('rank3-name'),
-    rank3Mark: document.getElementById('rank3-mark'),
-    kpiTotal: document.getElementById('kpi-total'),
-    kpiPassed: document.getElementById('kpi-passed'),
-    kpiFailed: document.getElementById('kpi-failed'),
-    kpiAverage: document.getElementById('kpi-average'),
-    kpiPassRate: document.getElementById('kpi-pass-rate'),
-    kpiFailRate: document.getElementById('kpi-fail-rate'),
     toast: document.getElementById('toast'),
     toastMessage: document.getElementById('toast-message'),
     toastIcon: document.querySelector('#toast .toast-icon'),
@@ -495,6 +483,7 @@ function renderOverview() {
 }
 
 function renderMetrics() {
+    if (!dom.kpiTotal || !dom.kpiPassed || !dom.kpiFailed || !dom.kpiAverage || !dom.kpiPassRate || !dom.kpiFailRate) return;
     dom.kpiTotal.textContent = String(students.length);
 
     if (students.length === 0) {
@@ -594,8 +583,8 @@ function renderTable(data) {
         dom.studentsTable.classList.add('hidden');
         dom.emptyState.classList.remove('hidden');
         setEmptyState(
-            'Start your cohort',
-            'Add a student to start entering marks.',
+            'No students yet',
+            'Add a student above to start entering marks.',
             'focus-add-form',
             'Add first student',
             'fas fa-plus'
@@ -1218,6 +1207,7 @@ function toggleTheme() {
 }
 
 function showToast(message, tone = 'success') {
+    if (tone === 'success') return;
     dom.toastMessage.textContent = message;
     dom.toast.classList.remove('hidden', 'is-error', 'is-info');
 
