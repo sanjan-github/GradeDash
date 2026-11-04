@@ -84,7 +84,7 @@ let confirmResolver = null;
 const modalStack = [];
 
 function init() {
-    applyTheme(localStorage.getItem('theme') || 'light');
+    applyTheme(localStorage.getItem('theme') || 'dark');
     applySidebarState();
     renderEverything({ preserveSubjectSelection: false });
     setupEventListeners();
@@ -482,30 +482,6 @@ function renderOverview() {
     dom.overviewReadyTemplates.textContent = `${getReadyStateCount()} + CBSE`;
 }
 
-function renderMetrics() {
-    if (!dom.kpiTotal || !dom.kpiPassed || !dom.kpiFailed || !dom.kpiAverage || !dom.kpiPassRate || !dom.kpiFailRate) return;
-    dom.kpiTotal.textContent = String(students.length);
-
-    if (students.length === 0) {
-        dom.kpiPassed.textContent = '0';
-        dom.kpiFailed.textContent = '0';
-        dom.kpiAverage.textContent = '0';
-        dom.kpiPassRate.textContent = '0% pass rate';
-        dom.kpiFailRate.textContent = '0% below target';
-        return;
-    }
-
-    const qualifiedCount = students.filter(hasPassed).length;
-    const attentionCount = students.length - qualifiedCount;
-    const averagePercentage = students.reduce((sum, student) => sum + getPercentage(student), 0) / students.length;
-
-    dom.kpiPassed.textContent = String(qualifiedCount);
-    dom.kpiFailed.textContent = String(attentionCount);
-    dom.kpiAverage.textContent = `${averagePercentage.toFixed(1)}%`;
-    dom.kpiPassRate.textContent = `${Math.round((qualifiedCount / students.length) * 100)}% pass rate`;
-    dom.kpiFailRate.textContent = `${Math.round((attentionCount / students.length) * 100)}% below target`;
-}
-
 function renderInsights() {
     const topStudent = getTopStudents(1)[0];
     const attentionCount = students.filter(student => !hasPassed(student)).length;
@@ -524,24 +500,6 @@ function renderInsights() {
             <small>${settings.subjectMaxMarks[subject] || 100}</small>
         </span>
     `).join('');
-}
-
-function renderPodium() {
-    if (!dom.rank1Name || !dom.rank1Mark || !dom.rank2Name || !dom.rank2Mark || !dom.rank3Name || !dom.rank3Mark) {
-        return;
-    }
-
-    const topStudents = getTopStudents(3);
-    const slots = [
-        { name: dom.rank1Name, mark: dom.rank1Mark, student: topStudents[0] },
-        { name: dom.rank2Name, mark: dom.rank2Mark, student: topStudents[1] },
-        { name: dom.rank3Name, mark: dom.rank3Mark, student: topStudents[2] }
-    ];
-
-    slots.forEach(slot => {
-        slot.name.textContent = slot.student ? slot.student.name : '-';
-        slot.mark.textContent = slot.student ? `${getTotalMark(slot.student)} pts` : '-';
-    });
 }
 
 function setEmptyState(title, copy, action, buttonLabel, iconClass) {
@@ -671,9 +629,7 @@ function renderTable(data) {
 function renderApp() {
     const sortedStudents = getSortedStudents();
     renderOverview();
-    renderMetrics();
     renderInsights();
-    renderPodium();
     renderTable(sortedStudents);
 }
 
@@ -1207,7 +1163,6 @@ function toggleTheme() {
 }
 
 function showToast(message, tone = 'success') {
-    if (tone === 'success') return;
     dom.toastMessage.textContent = message;
     dom.toast.classList.remove('hidden', 'is-error', 'is-info');
 
