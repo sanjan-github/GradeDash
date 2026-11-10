@@ -2,12 +2,12 @@ const dom = {
     settingsModal: document.getElementById('settings-modal'),
     templatesModal: document.getElementById('templates-modal'),
     confirmModal: document.getElementById('confirm-modal'),
+    mainContent: document.querySelector('.main-content'),
     topbar: document.querySelector('.topbar'),
     dashboardScroll: document.querySelector('.dashboard-scroll'),
     sidebar: document.querySelector('.sidebar'),
     sidebarBackdrop: document.getElementById('sidebar-backdrop'),
     btnSettings: document.getElementById('btn-settings'),
-    btnThemeToggle: document.getElementById('btn-theme-toggle'),
     btnTemplates: document.getElementById('btn-templates'),
     btnSidebarToggle: document.getElementById('btn-sidebar-toggle'),
     btnSidebarClose: document.getElementById('btn-sidebar-close'),
@@ -84,7 +84,6 @@ let confirmResolver = null;
 const modalStack = [];
 
 function init() {
-    applyTheme(localStorage.getItem('theme') || 'dark');
     applySidebarState();
     renderEverything({ preserveSubjectSelection: false });
     setupEventListeners();
@@ -393,20 +392,20 @@ function renderForms(options = {}) {
     }
 
     dom.tableHeadRow.innerHTML = `
-        <th>Student profile</th>
-        ${settings.subjects.map(subject => `<th>${escapeHtml(subject)}</th>`).join('')}
-        <th>Total</th>
-        <th>Percentage</th>
-        <th>Status</th>
-        <th>Actions</th>
+        <th scope="col">Student profile</th>
+        ${settings.subjects.map(subject => `<th scope="col">${escapeHtml(subject)}</th>`).join('')}
+        <th scope="col">Total</th>
+        <th scope="col">Percentage</th>
+        <th scope="col">Status</th>
+        <th scope="col">Actions</th>
     `;
 
     dom.printHeadRow.innerHTML = `
-        <th>Name</th>
-        ${settings.subjects.map(subject => `<th>${escapeHtml(subject)}</th>`).join('')}
-        <th>Total</th>
-        <th>Percentage</th>
-        <th>Status</th>
+        <th scope="col">Name</th>
+        ${settings.subjects.map(subject => `<th scope="col">${escapeHtml(subject)}</th>`).join('')}
+        <th scope="col">Total</th>
+        <th scope="col">Percentage</th>
+        <th scope="col">Status</th>
     `;
 
     renderSubjectEntryList(dom.subjectSelect.value);
@@ -1098,6 +1097,7 @@ function openModal(modal, preferredSelector) {
     modal.classList.remove('hidden');
     modalStack.push(modal);
     document.body.classList.add('modal-open');
+    dom.mainContent?.setAttribute('inert', '');
     focusModal(modal, preferredSelector);
 }
 
@@ -1110,6 +1110,7 @@ function closeModal(modal) {
 
     if (modalStack.length === 0) {
         document.body.classList.remove('modal-open');
+        dom.mainContent?.removeAttribute('inert');
         if (modal.__returnFocus && document.body.contains(modal.__returnFocus)) {
             modal.__returnFocus.focus();
         }
@@ -1214,26 +1215,6 @@ function toggleSidebar() {
     updateSidebarToggleButton();
 }
 
-function applyTheme(theme) {
-    document.body.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-
-    const iconClass = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-    const label = theme === 'dark' ? 'Light mode' : 'Dark mode';
-    dom.btnThemeToggle.innerHTML = `<i class="${iconClass}"></i><span>${label}</span>`;
-    dom.btnThemeToggle.setAttribute('aria-label', label);
-
-    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-    if (themeColorMeta) {
-        themeColorMeta.setAttribute('content', theme === 'dark' ? '#07120f' : '#0e7e64');
-    }
-}
-
-function toggleTheme() {
-    const currentTheme = document.body.getAttribute('data-theme');
-    applyTheme(currentTheme === 'light' ? 'dark' : 'light');
-}
-
 function showToast(message, tone = 'success') {
     dom.toastMessage.textContent = message;
     dom.toast.classList.remove('hidden', 'is-error', 'is-info');
@@ -1279,14 +1260,70 @@ function clearSearch() {
     dom.searchInput.focus();
 }
 
+function getExportMenuItems() {
+    return [...dom.exportMenu.querySelectorAll('[role="menuitem"]')];
+}
+
+function setExportMenuOpen(isOpen, restoreFocus = false) {
+    dom.exportMenu.classList.toggle('hidden', !isOpen);
+    dom.btnExportMenu.setAttribute('aria-expanded', String(isOpen));
+    if (restoreFocus) dom.btnExportMenu.focus();
+}
+
+function handleExportMenuKeydown(event) {
+    const items = getExportMenuItems();
+    if (event.key === 'Escape') {
+        event.preventDefault();
+        setExportMenuOpen(false, true);
+        return;
+    }
+
+    if (items.length === 0) return;
+    const currentIndex = items.indexOf(document.activeElement);
+    let nextIndex = currentIndex;
+
+    if (event.key === 'ArrowDown') nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+    if (event.key === 'ArrowUp') nextIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = items.length - 1;
+    if (nextIndex === currentIndex) return;
+
+    event.preventDefault();
+    items[nextIndex].focus();
+}
+
 function switchEntryTab(mode) {
     const showStudent = mode === 'student';
     dom.tabByStudent.classList.toggle('active', showStudent);
     dom.tabBySubject.classList.toggle('active', !showStudent);
     dom.tabByStudent.setAttribute('aria-selected', String(showStudent));
     dom.tabBySubject.setAttribute('aria-selected', String(!showStudent));
+    dom.tabByStudent.tabIndex = showStudent ? 0 : -1;
+    dom.tabBySubject.tabIndex = showStudent ? -1 : 0;
     dom.addStudentForm.classList.toggle('hidden', !showStudent);
     dom.addSubjectForm.classList.toggle('hidden', showStudent);
+    dom.addStudentForm.hidden = !showStudent;
+    dom.addSubjectForm.hidden = showStudent;
+    dom.addStudentForm.setAttribute('aria-hidden', String(!showStudent));
+    dom.addSubjectForm.setAttribute('aria-hidden', String(showStudent));
+}
+
+function handleEntryTabKeydown(event) {
+    const tabs = [dom.tabByStudent, dom.tabBySubject];
+    const currentIndex = tabs.indexOf(event.currentTarget);
+    if (currentIndex === -1) return;
+
+    let nextIndex = currentIndex;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % tabs.length;
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = tabs.length - 1;
+    if (nextIndex === currentIndex) return;
+
+    event.preventDefault();
+    const nextTab = tabs[nextIndex];
+    nextTab.focus();
+    switchEntryTab(nextIndex === 0 ? 'student' : 'subject');
 }
 
 function handleAddStudent(event) {
@@ -1690,10 +1727,6 @@ async function handleActionClick(button, event) {
             event.preventDefault();
             openTemplatesModal();
             return;
-        case 'toggle-theme':
-            event.preventDefault();
-            toggleTheme();
-            return;
         case 'focus-add-form':
             event.preventDefault();
             focusAddForm();
@@ -1745,10 +1778,11 @@ function setupEventListeners() {
 
     dom.btnSettings.addEventListener('click', openSettingsModal);
     dom.btnTemplates.addEventListener('click', openTemplatesModal);
-    dom.btnThemeToggle.addEventListener('click', toggleTheme);
 
     dom.tabByStudent.addEventListener('click', () => switchEntryTab('student'));
     dom.tabBySubject.addEventListener('click', () => switchEntryTab('subject'));
+    dom.tabByStudent.addEventListener('keydown', handleEntryTabKeydown);
+    dom.tabBySubject.addEventListener('keydown', handleEntryTabKeydown);
 
     dom.addStudentForm.addEventListener('submit', handleAddStudent);
     dom.addSubjectForm.addEventListener('submit', handleAddSubjectMarks);
@@ -1779,23 +1813,30 @@ function setupEventListeners() {
     dom.btnExportMenu.addEventListener('click', event => {
         event.stopPropagation();
         const isExpanded = dom.btnExportMenu.getAttribute('aria-expanded') === 'true';
-        dom.exportMenu.classList.toggle('hidden', isExpanded);
-        dom.btnExportMenu.setAttribute('aria-expanded', String(!isExpanded));
+        setExportMenuOpen(!isExpanded);
+        if (!isExpanded) getExportMenuItems()[0]?.focus();
     });
+
+    dom.btnExportMenu.addEventListener('keydown', event => {
+        if (event.key !== 'ArrowDown' && event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        setExportMenuOpen(true);
+        getExportMenuItems()[0]?.focus();
+    });
+
+    dom.exportMenu.addEventListener('keydown', handleExportMenuKeydown);
 
     dom.exportMenu.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', event => {
             event.preventDefault();
             exportData(event.currentTarget.dataset.format);
-            dom.exportMenu.classList.add('hidden');
-            dom.btnExportMenu.setAttribute('aria-expanded', 'false');
+            setExportMenuOpen(false, true);
         });
     });
 
     document.addEventListener('click', event => {
         if (!event.target.closest('.export-dropdown')) {
-            dom.exportMenu.classList.add('hidden');
-            dom.btnExportMenu.setAttribute('aria-expanded', 'false');
+            setExportMenuOpen(false);
         }
 
         const closeButton = event.target.closest('.close-modal');

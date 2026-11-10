@@ -83,6 +83,11 @@
     box-sizing: border-box;
 }
 
+:where(button, a, input, select, textarea):focus-visible {
+    outline: 3px solid var(--primary-light);
+    outline-offset: 3px;
+}
+
 html {
     scroll-behavior: smooth;
     height: 100%;
@@ -518,6 +523,7 @@ body {
     font-weight: 600;
     letter-spacing: -0.01em;
     cursor: pointer;
+    min-height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1008,6 +1014,42 @@ tbody td strong {
     color: var(--danger);
 }
 
+.actions-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xxs);
+}
+
+.btn-action {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.btn-action:hover,
+.btn-action:focus-visible {
+    background: var(--surface-subtle);
+    border-color: var(--border-strong);
+    color: var(--primary-light);
+}
+
+.btn-action.delete:hover,
+.btn-action.delete:focus-visible {
+    background: var(--danger-subtle);
+    border-color: var(--danger-border);
+    color: var(--danger);
+}
+
 /* Empty State */
 
 .empty-state {
@@ -1183,8 +1225,10 @@ tbody td strong {
     font-size: 16px;
     cursor: pointer;
     border-radius: var(--radius-xs);
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1428,5 +1472,88 @@ tbody td strong {
 
     .topbar-trailing {
         width: 100%;
+    }
+
+    .table-container {
+        overflow-x: visible;
+        border: none;
+        background: transparent;
+    }
+
+    table,
+    thead,
+    tbody,
+    tbody tr,
+    tbody td {
+        display: block;
+    }
+
+    thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    tbody tr {
+        margin-bottom: var(--space-sm);
+        padding: var(--space-xs);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: rgba(7, 13, 34, 0.4);
+    }
+
+    tbody td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-xs);
+        padding: 8px var(--space-xs);
+        border-bottom: 1px solid var(--border);
+        text-align: right;
+    }
+
+    tbody td::before {
+        content: attr(data-label);
+        flex: 0 0 auto;
+        color: var(--text-muted);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-align: left;
+    }
+
+    tbody td[data-label="Student"] {
+        display: block;
+        text-align: left;
+    }
+
+    tbody td[data-label="Student"]::before {
+        display: none;
+    }
+
+    tbody td:last-child {
+        border-bottom: none;
+    }
+
+    .actions-cell {
+        justify-content: flex-end;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }
