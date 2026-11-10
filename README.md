@@ -18,7 +18,7 @@ Open `index.html` in a browser to use the dashboard.
 - Search, sorting, empty-state guidance, and leaderboard insights
 - Board-template library for 10th, intermediate, and engineering structures
 - Export to PDF, Excel, and Word
-- Theme toggle with saved preference
+- Dark-first interface with responsive mobile layout
 - Local persistence with `localStorage`
 
 ## Python CLI
@@ -41,7 +41,7 @@ The CLI stores records in a simple `name|mark` text format and also understands 
 ## Project files
 
 - `index.html` - application structure and modal markup
-- `styles.css` - visual system, responsive layout, theming, and component styles
+- `styles.css` - visual system, responsive layout, and component styles
 - `js/state.js` - storage normalization and initial state hydration
 - `js/app.js` - dashboard logic, rendering, validation, modals, and export flows
 - `js/data/templates.js` - board and semester template catalog
