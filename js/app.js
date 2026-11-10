@@ -482,24 +482,96 @@ function renderOverview() {
     dom.overviewReadyTemplates.textContent = `${getReadyStateCount()} + CBSE`;
 }
 
+function renderHeroKpis() {
+    const totalCount = students.length;
+    const passedCount = students.filter(student => hasPassed(student)).length;
+    const attentionCount = totalCount - passedCount;
+    const passRate = totalCount > 0 ? ((passedCount / totalCount) * 100).toFixed(1) : '0.0';
+    const topStudent = getTopStudents(1)[0];
+
+    const kpiTotalStudents = document.getElementById('kpi-total-students');
+    const kpiPassRate = document.getElementById('kpi-pass-rate');
+    const kpiTopScore = document.getElementById('kpi-top-score');
+    const kpiTopName = document.getElementById('kpi-top-name');
+    const kpiAttentionCount = document.getElementById('kpi-attention-count');
+    const kpiPassRule = document.getElementById('kpi-pass-rule');
+    const kpiPassBadge = document.getElementById('kpi-pass-badge');
+    const kpiStudentsBadge = document.getElementById('kpi-students-badge');
+    const kpiAttentionBadge = document.getElementById('kpi-attention-badge');
+    const insightTotalMaxPill = document.getElementById('insight-total-max-pill');
+
+    if (kpiTotalStudents) kpiTotalStudents.textContent = String(totalCount);
+    if (kpiPassRate) kpiPassRate.textContent = passRate;
+    if (kpiAttentionCount) kpiAttentionCount.textContent = String(attentionCount);
+
+    if (kpiStudentsBadge) {
+        kpiStudentsBadge.textContent = totalCount > 0 ? 'active' : 'idle';
+    }
+
+    if (kpiPassBadge) {
+        if (totalCount === 0) {
+            kpiPassBadge.textContent = 'ready';
+            kpiPassBadge.className = 'kpi-pill kpi-pill-normal';
+        } else if (Number(passRate) >= 80) {
+            kpiPassBadge.textContent = 'optimal';
+            kpiPassBadge.className = 'kpi-pill kpi-pill-optimal';
+        } else if (Number(passRate) >= 50) {
+            kpiPassBadge.textContent = 'normal';
+            kpiPassBadge.className = 'kpi-pill kpi-pill-normal';
+        } else {
+            kpiPassBadge.textContent = 'review';
+            kpiPassBadge.className = 'kpi-pill kpi-pill-review';
+        }
+    }
+
+    if (kpiAttentionBadge) {
+        kpiAttentionBadge.className = attentionCount > 0 ? 'kpi-pill kpi-pill-review' : 'kpi-pill kpi-pill-normal';
+        kpiAttentionBadge.textContent = attentionCount > 0 ? 'review' : 'cleared';
+    }
+
+    if (kpiTopScore) {
+        if (topStudent) {
+            kpiTopScore.textContent = formatPercent(getPercentage(topStudent));
+            if (kpiTopName) kpiTopName.textContent = topStudent.name;
+        } else {
+            kpiTopScore.textContent = '-';
+            if (kpiTopName) kpiTopName.textContent = 'No scores yet';
+        }
+    }
+
+    if (kpiPassRule) {
+        kpiPassRule.textContent = getShortQualifyRuleSummary();
+    }
+
+    if (insightTotalMaxPill) {
+        insightTotalMaxPill.textContent = `${getMaxTotalMarks()} Total Max`;
+    }
+}
+
 function renderInsights() {
     const topStudent = getTopStudents(1)[0];
     const attentionCount = students.filter(student => !hasPassed(student)).length;
 
-    dom.insightTopName.textContent = topStudent ? topStudent.name : '-';
-    dom.insightTopScore.textContent = topStudent
-        ? `${getTotalMark(topStudent)} / ${getMaxTotalMarks()} · ${formatPercent(getPercentage(topStudent))}`
-        : 'No scores yet';
-    dom.insightAttentionCount.textContent = String(attentionCount);
-    dom.insightPassRule.textContent = getQualifyRuleSummary();
-    dom.insightTotalMax.textContent = `${getMaxTotalMarks()} total max`;
+    if (dom.insightTopName) dom.insightTopName.textContent = topStudent ? topStudent.name : '-';
+    if (dom.insightTopScore) {
+        dom.insightTopScore.textContent = topStudent
+            ? `${getTotalMark(topStudent)} / ${getMaxTotalMarks()} · ${formatPercent(getPercentage(topStudent))}`
+            : 'No scores yet';
+    }
+    if (dom.insightAttentionCount) dom.insightAttentionCount.textContent = String(attentionCount);
+    if (dom.insightPassRule) dom.insightPassRule.textContent = getQualifyRuleSummary();
+    if (dom.insightTotalMax) dom.insightTotalMax.textContent = `${getMaxTotalMarks()} total max`;
 
-    dom.subjectHighlightList.innerHTML = settings.subjects.map(subject => `
-        <span class="subject-pill">
-            ${escapeHtml(subject)}
-            <small>${settings.subjectMaxMarks[subject] || 100}</small>
-        </span>
-    `).join('');
+    if (dom.subjectHighlightList) {
+        dom.subjectHighlightList.innerHTML = settings.subjects.map(subject => `
+            <div class="subject-highlight-pill">
+                <strong>${escapeHtml(subject)}</strong>
+                <span>${settings.subjectMaxMarks[subject] || 100} max</span>
+            </div>
+        `).join('');
+    }
+
+    renderHeroKpis();
 }
 
 function setEmptyState(title, copy, action, buttonLabel, iconClass) {

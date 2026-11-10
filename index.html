@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GradeDash | Class marks</title>
-    <meta name="description" content="Enter, review, and export marks for a class.">
-    <meta name="theme-color" content="#176b5b">
+    <title>GradeDash | Class Marks & Telemetry</title>
+    <meta name="description" content="Enter, review, and evaluate student marks across subjects.">
+    <meta name="theme-color" content="#0000f8">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -16,15 +16,15 @@
     <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
 </head>
 <body data-theme="dark">
-    <div class="page-noise" aria-hidden="true"></div>
     <div class="layout-shell">
-        <aside class="sidebar" aria-label="Primary">
+        <!-- Figma-Style Slim Vertical Navigation Rail -->
+        <aside class="sidebar" aria-label="Primary Navigation">
             <div class="sidebar-header">
-                <div class="brand-mark">
+                <div class="brand-mark" title="GradeDash">
                     <span class="brand-icon"><i class="fas fa-graduation-cap"></i></span>
-                    <div>
+                    <div class="brand-details">
                         <span class="brand-name">GradeDash</span>
-                        <span class="brand-caption">Class marks</span>
+                        <span class="brand-caption">Class Telemetry</span>
                     </div>
                 </div>
                 <button type="button" class="sidebar-close-btn" id="btn-sidebar-close" aria-label="Close menu">
@@ -32,100 +32,215 @@
                 </button>
             </div>
 
-            <nav class="menu">
-                <div class="menu-section">Workspace</div>
-                <button type="button" class="menu-item active menu-item-dashboard" aria-current="page">
+            <nav class="menu" aria-label="Main Navigation">
+                <div class="menu-section-label">Workspace</div>
+                <button type="button" class="menu-item active menu-item-dashboard" aria-current="page" title="Dashboard">
                     <i class="fas fa-chart-line"></i>
-                    <span>Dashboard</span>
+                    <span class="menu-label">Dashboard</span>
                 </button>
 
-                <div class="menu-section">System</div>
-                <button type="button" class="menu-item menu-item-settings" id="btn-settings">
+                <div class="menu-section-label">System</div>
+                <button type="button" class="menu-item menu-item-settings" id="btn-settings" title="Rules & Subjects">
                     <i class="fas fa-sliders"></i>
-                    <span>Rules &amp; subjects</span>
+                    <span class="menu-label">Rules &amp; subjects</span>
                 </button>
-                <button type="button" class="menu-item menu-item-templates" id="btn-templates">
+                <button type="button" class="menu-item menu-item-templates" id="btn-templates" title="Template Library">
                     <i class="fas fa-layer-group"></i>
-                    <span>Templates</span>
+                    <span class="menu-label">Templates</span>
                 </button>
-                <button type="button" class="menu-item menu-item-theme" id="btn-theme-toggle" aria-label="Switch theme">
+                <button type="button" class="menu-item menu-item-theme hidden" id="btn-theme-toggle" aria-label="Switch theme" style="display:none !important;" aria-hidden="true">
                     <i class="fas fa-moon"></i>
-                    <span>Dark mode</span>
+                    <span class="menu-label">Toggle theme</span>
                 </button>
             </nav>
 
-            <div class="sidebar-panel">
-                    <span class="sidebar-panel-kicker">Class setup</span>
-                    <h2>Keep the rules close.</h2>
-                    <p>Use Rules &amp; subjects when the class structure changes. The roster will use those limits for every total and percentage.</p>
+            <div class="sidebar-footer">
+                <div class="sidebar-status-pill" title="System Ready">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">EMS v2.4</span>
+                </div>
             </div>
         </aside>
 
         <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
+        <!-- Main Content Area -->
         <main class="main-content">
+            <!-- Topbar: GradeDash Title & Live Status Indicator -->
             <header class="topbar">
-                    <div class="topbar-leading">
-                        <button type="button" class="sidebar-toggle-btn" id="btn-sidebar-toggle" aria-label="Toggle menu">
-                            <i class="fas fa-bars"></i>
-                            <span>Menu</span>
-                        </button>
-                        <div class="search-shell">
-                            <label for="global-search" class="sr-only">Search the roster</label>
-                            <i class="fas fa-search"></i>
-                            <input type="search" id="global-search" placeholder="Search the roster">
-                        </div>
+                <div class="topbar-leading">
+                    <button type="button" class="sidebar-toggle-btn" id="btn-sidebar-toggle" aria-label="Toggle menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="topbar-title-wrap">
+                        <h1 class="app-title">GradeDash</h1>
                     </div>
+                </div>
+                <div class="topbar-trailing">
+                    <div class="realtime-status-pill">
+                        <span class="pulse-dot"></span>
+                        <span>Evaluation Active</span>
+                    </div>
+                </div>
             </header>
 
             <div class="dashboard-scroll">
-                <section class="task-header" aria-labelledby="page-title">
-                    <div class="task-copy">
-                        <span class="task-label">Class marks</span>
-                        <h1 id="page-title">Enter the next mark.</h1>
-                        <p>Add a student, fill in the current subjects, and keep the qualification rule visible while you work.</p>
-                    </div>
-                    <div class="task-actions">
-                        <button type="button" class="btn btn-primary" data-action="focus-add-form">
-                            <i class="fas fa-user-plus" aria-hidden="true"></i>
-                            <span>Add student</span>
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-action="open-templates">
-                            <i class="fas fa-layer-group" aria-hidden="true"></i>
-                            <span>Choose template</span>
-                        </button>
-                    </div>
-                    <div class="class-meta" aria-label="Current class setup">
-                        <div class="class-meta-item">
-                            <span>Subjects</span>
-                            <strong id="overview-subject-count">0</strong>
-                            <small id="overview-total-max">Total max 0</small>
+                <!-- Figma EMS Style Filter & Control Bar -->
+                <section class="filter-control-card" aria-label="Filter and Actions">
+                    <div class="filter-grid">
+                        <div class="filter-col">
+                            <label class="filter-label">Filter Type</label>
+                            <div class="filter-select-wrapper">
+                                <div class="segmented-modes" role="tablist" aria-label="Entry modes">
+                                    <button type="button" class="tab-btn active" id="tab-by-student" aria-selected="true">
+                                        <i class="fas fa-user"></i> By student
+                                    </button>
+                                    <button type="button" class="tab-btn" id="tab-by-subject" aria-selected="false">
+                                        <i class="fas fa-book"></i> By subject
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="class-meta-item">
-                            <span>Pass rule</span>
-                            <strong id="overview-qualification">Awaiting setup</strong>
-                            <small>Applied per subject</small>
+
+                        <div class="filter-col filter-col-search">
+                            <label for="global-search" class="filter-label">Search Roster</label>
+                            <div class="search-input-box">
+                                <i class="fas fa-search"></i>
+                                <input type="search" id="global-search" placeholder="Search student name or marks...">
+                            </div>
                         </div>
-                        <div class="class-meta-item">
-                            <span>Templates</span>
-                            <strong id="overview-ready-templates">0</strong>
-                            <small>Boards available</small>
+
+                        <div class="filter-col">
+                            <label for="sort-select" class="filter-label">Data Sorting</label>
+                            <div class="select-box">
+                                <i class="fas fa-arrow-down-wide-short"></i>
+                                <select id="sort-select">
+                                    <option value="entry-desc">Newest first</option>
+                                    <option value="entry-asc">Oldest first</option>
+                                    <option value="marks-desc">Highest marks</option>
+                                    <option value="marks-asc">Lowest marks</option>
+                                    <option value="name-asc">Name A-Z</option>
+                                    <option value="name-desc">Name Z-A</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="filter-col filter-actions">
+                            <div class="export-dropdown">
+                                <button type="button" class="btn btn-outline" id="btn-export-menu" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-download"></i>
+                                    <span>Export</span>
+                                </button>
+                                <div class="dropdown-menu hidden" id="export-menu" role="menu">
+                                    <a href="#" data-format="pdf" role="menuitem"><i class="far fa-file-pdf"></i> PDF document</a>
+                                    <a href="#" data-format="xlsx" role="menuitem"><i class="far fa-file-excel"></i> Excel sheet</a>
+                                    <a href="#" data-format="docx" role="menuitem"><i class="far fa-file-word"></i> Word document</a>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary" data-action="focus-add-form">
+                                <i class="fas fa-filter"></i>
+                                <span>Add Student</span>
+                            </button>
                         </div>
                     </div>
                 </section>
 
+                <!-- Figma 4-Card Hero Telemetry Metric Row -->
+                <section class="kpi-hero-grid" aria-label="Key Performance Indicators">
+                    <!-- KPI Card 1: Students -->
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-code">ROSTER</span>
+                            <span class="kpi-pill kpi-pill-normal" id="kpi-students-badge">normal</span>
+                        </div>
+                        <div class="kpi-metric">
+                            <span class="kpi-number" id="kpi-total-students">0</span>
+                            <span class="kpi-unit">STUDENTS</span>
+                        </div>
+                        <div class="kpi-card-footer">
+                            <span class="kpi-label-muted">Active Count</span>
+                            <span class="kpi-trend kpi-trend-up">↑ 100% active</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI Card 2: Pass Rate -->
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-code">PASS RATE</span>
+                            <span class="kpi-pill kpi-pill-optimal" id="kpi-pass-badge">optimal</span>
+                        </div>
+                        <div class="kpi-metric">
+                            <span class="kpi-number" id="kpi-pass-rate">0.0</span>
+                            <span class="kpi-unit">%</span>
+                        </div>
+                        <div class="kpi-card-footer">
+                            <span class="kpi-label-muted">Qualified Roster</span>
+                            <span class="kpi-trend kpi-trend-up" id="kpi-pass-trend">↑ cleared</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI Card 3: Top Performer -->
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-code">TOP MARK</span>
+                            <span class="kpi-pill kpi-pill-normal" id="kpi-top-badge">optimal</span>
+                        </div>
+                        <div class="kpi-metric">
+                            <span class="kpi-number" id="kpi-top-score">-</span>
+                            <span class="kpi-unit" id="kpi-top-unit">SCORE</span>
+                        </div>
+                        <div class="kpi-card-footer">
+                            <span class="kpi-label-muted" id="kpi-top-name">No scores yet</span>
+                            <span class="kpi-trend kpi-trend-neutral">• lead</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI Card 4: Needs Review -->
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-code">BELOW RULE</span>
+                            <span class="kpi-pill kpi-pill-review" id="kpi-attention-badge">review</span>
+                        </div>
+                        <div class="kpi-metric">
+                            <span class="kpi-number" id="kpi-attention-count">0</span>
+                            <span class="kpi-unit">ALERT</span>
+                        </div>
+                        <div class="kpi-card-footer">
+                            <span class="kpi-label-muted" id="kpi-pass-rule">Qualification rule</span>
+                            <span class="kpi-trend kpi-trend-down" id="kpi-attention-trend">↓ needs review</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Hidden references for legacy overview elements so existing DOM scripts stay 100% resilient -->
+                <div class="sr-only" aria-hidden="true">
+                    <span id="overview-subject-count">0</span>
+                    <span id="overview-total-max">0</span>
+                    <span id="overview-qualification">Awaiting setup</span>
+                    <span id="overview-ready-templates">0</span>
+                    <span id="insight-top-name">-</span>
+                    <span id="insight-top-score">No scores yet</span>
+                    <span id="insight-attention-count">0</span>
+                    <span id="insight-pass-rule">Awaiting criteria</span>
+                    <span id="insight-total-max">0</span>
+                </div>
+
+                <!-- Workspace Grid: Primary Composer & Roster + Secondary Summary -->
                 <section class="workspace-grid">
                     <div class="primary-stack">
+                        <!-- Add Student / Subject Composer Card -->
                         <section class="card composer-card" aria-labelledby="composer-title">
                             <div class="card-header card-header-stack">
                                 <div>
-                                    <span class="section-label">Enter marks</span>
+                                    <span class="section-label">Data Input</span>
                                     <h2 id="composer-title">Add a student</h2>
-                                    <p>Enter one student at a time, or update a whole subject in one pass.</p>
+                                    <p>Enter marks for a single student or enter an entire subject in one pass.</p>
                                 </div>
-                                <div class="tabs" role="tablist" aria-label="Entry modes">
-                                    <button type="button" class="tab-btn active" id="tab-by-student" aria-selected="true">By student</button>
-                                    <button type="button" class="tab-btn" id="tab-by-subject" aria-selected="false">By subject</button>
+                                <div class="composer-header-actions">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-action="open-templates">
+                                        <i class="fas fa-layer-group"></i>
+                                        <span>Choose template</span>
+                                    </button>
                                 </div>
                             </div>
 
@@ -136,15 +251,15 @@
                             <form id="add-subject-form" class="hidden" role="tabpanel" aria-labelledby="tab-by-subject" novalidate>
                                 <div class="subject-entry-layout">
                                     <div class="form-group">
-                                        <label for="subject-select">Subject</label>
+                                        <label for="subject-select">Select Subject</label>
                                         <select id="subject-select" required></select>
-                                        <p class="field-note">Select a subject and enter marks for every student in one pass.</p>
+                                        <p class="field-note">Select a subject to enter marks for all active students.</p>
                                     </div>
 
                                     <div class="subject-student-panel">
                                         <div class="subject-student-header">
                                             <div>
-                                                <h3>Class set</h3>
+                                                <h3>Class Set</h3>
                                                 <p id="subject-panel-meta">Select a subject to begin.</p>
                                             </div>
                                             <button type="submit" class="btn btn-primary">
@@ -159,39 +274,13 @@
                             </form>
                         </section>
 
+                        <!-- Student Roster Table Card -->
                         <section class="card roster-card" aria-labelledby="roster-title">
-                                <div class="card-header">
-                                    <div>
-                                    <span class="section-label">Roster</span>
-                                    <h2 id="roster-title">Student roster</h2>
+                            <div class="card-header">
+                                <div>
+                                    <span class="section-label">Roster Analytics</span>
+                                    <h2 id="roster-title">Student Performance Roster</h2>
                                     <p id="results-summary">No students added yet.</p>
-                                </div>
-
-                                <div class="list-controls">
-                                    <div class="sort-control">
-                                        <label for="sort-select" class="sr-only">Sort students</label>
-                                        <i class="fas fa-arrow-down-wide-short"></i>
-                                        <select id="sort-select">
-                                            <option value="entry-desc">Newest first</option>
-                                            <option value="entry-asc">Oldest first</option>
-                                            <option value="marks-desc">Highest marks</option>
-                                            <option value="marks-asc">Lowest marks</option>
-                                            <option value="name-asc">Name A-Z</option>
-                                            <option value="name-desc">Name Z-A</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="export-dropdown">
-                                        <button type="button" class="btn btn-outline" id="btn-export-menu" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-download"></i>
-                                            <span>Export</span>
-                                        </button>
-                                        <div class="dropdown-menu hidden" id="export-menu" role="menu">
-                                            <a href="#" data-format="pdf" role="menuitem"><i class="far fa-file-pdf"></i> PDF document</a>
-                                            <a href="#" data-format="xlsx" role="menuitem"><i class="far fa-file-excel"></i> Excel sheet</a>
-                                            <a href="#" data-format="docx" role="menuitem"><i class="far fa-file-word"></i> Word document</a>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
 
@@ -209,7 +298,7 @@
                                         <i class="fas fa-folder-open"></i>
                                     </div>
                                     <h3 id="empty-state-title">No students yet</h3>
-                                    <p id="empty-state-copy">Add a student to start entering marks.</p>
+                                    <p id="empty-state-copy">Add a student or pick a template to start entering marks.</p>
                                     <button type="button" class="btn btn-primary" data-action="focus-add-form">
                                         <i class="fas fa-plus"></i>
                                         <span>Add first student</span>
@@ -220,47 +309,37 @@
                     </div>
 
                     <aside class="secondary-stack">
-                        <section class="class-summary" aria-labelledby="insight-title">
-                            <div class="section-heading">
+                        <!-- Class Summary Card -->
+                        <section class="card class-summary-card" aria-labelledby="insight-title">
+                            <div class="card-header">
                                 <div>
-                                    <span class="section-label">Class summary</span>
-                                    <h2 id="insight-title">What needs attention</h2>
-                                    <p>Based on the current subjects and pass rule.</p>
-                                </div>
-                            </div>
-                            <div class="summary-list">
-                                <div class="summary-row">
-                                    <span>Top mark</span>
-                                    <strong id="insight-top-name">-</strong>
-                                    <small id="insight-top-score">No scores yet</small>
-                                </div>
-                                <div class="summary-row">
-                                    <span>Below the rule</span>
-                                    <strong id="insight-attention-count">0</strong>
-                                    <small id="insight-pass-rule">Awaiting criteria</small>
+                                    <span class="section-label">Telemetry Overview</span>
+                                    <h2 id="insight-title">Active Subjects</h2>
+                                    <p>Distribution and maximum limits per subject.</p>
                                 </div>
                             </div>
                             <div class="subject-overview">
                                 <div class="subject-overview-header">
-                                    <h3>Subjects</h3>
-                                    <span id="insight-total-max">0 total max</span>
+                                    <h3>Configured Subjects</h3>
+                                    <span class="badge-accent" id="insight-total-max-pill">0 Total Max</span>
                                 </div>
                                 <div class="subject-pill-list" id="subject-highlight-list"></div>
                             </div>
                         </section>
 
+                        <!-- Student Edit Drawer Card -->
                         <section class="card update-card hidden" id="update-container" aria-labelledby="update-title">
                             <div class="card-header card-header-stack">
                                 <div>
-                                    <span class="section-label">Edit student</span>
-                                    <h2 id="update-title">Update student details</h2>
-                                    <p>Adjust marks carefully. Changes save back to the active roster immediately.</p>
+                                    <span class="section-label">Edit Student</span>
+                                    <h2 id="update-title">Update Student Details</h2>
+                                    <p>Adjust marks carefully. Changes commit to the active roster immediately.</p>
                                 </div>
                             </div>
 
                             <form id="update-form" novalidate>
                                 <div class="form-group">
-                                    <label for="update-name">Student name</label>
+                                    <label for="update-name">Student Name</label>
                                     <input type="text" id="update-name" autocomplete="off" required>
                                 </div>
                                 <div id="update-form-inputs" class="update-fields"></div>
@@ -276,12 +355,13 @@
         </main>
     </div>
 
+    <!-- Modals -->
     <div class="modal-overlay hidden" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
         <div class="modal-card modal-card-wide">
             <div class="modal-header">
                 <div>
                     <span class="modal-kicker">Configuration</span>
-                    <h2 id="settings-title">Evaluation settings</h2>
+                    <h2 id="settings-title">Evaluation Settings</h2>
                     <p>Shape the subject model and the rule used to qualify each student.</p>
                 </div>
                 <button type="button" class="close-modal" aria-label="Close settings">
@@ -293,14 +373,14 @@
                 <section class="settings-section">
                     <div class="settings-section-header">
                         <div>
-                            <h3>Subjects and maximum marks</h3>
+                            <h3>Subjects and Maximum Marks</h3>
                             <p>Add, tune, or trim the subjects used in calculations.</p>
                         </div>
                     </div>
 
                     <div class="subject-creator">
                         <div class="form-group">
-                            <label for="new-subject-name">Subject name</label>
+                            <label for="new-subject-name">Subject Name</label>
                             <input type="text" id="new-subject-name" placeholder="e.g. Mathematics" autocomplete="off">
                         </div>
                         <div class="form-group form-group-compact">
@@ -319,13 +399,13 @@
                 <section class="settings-section">
                     <div class="settings-section-header">
                         <div>
-                            <h3>Qualification rule</h3>
+                            <h3>Qualification Rule</h3>
                             <p>Choose the threshold each student must clear in every active subject.</p>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="setting-qualify-type">Rule type</label>
+                        <label for="setting-qualify-type">Rule Type</label>
                         <select id="setting-qualify-type">
                             <option value="marks">Minimum marks per subject</option>
                             <option value="percentage">Minimum percentage per subject</option>
@@ -334,7 +414,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="setting-qualify-value" id="setting-qualify-label">Qualifying value</label>
+                        <label for="setting-qualify-value" id="setting-qualify-label">Qualifying Value</label>
                         <input type="number" id="setting-qualify-value" required min="0" step="1" value="40">
                         <p class="field-note" id="setting-qualify-help">Each subject must meet this threshold to count as qualified.</p>
                     </div>
@@ -357,8 +437,8 @@
                         <span>Back</span>
                     </button>
                     <div>
-                        <span class="modal-kicker">Template library</span>
-                        <h2 id="template-modal-title">Pick a template</h2>
+                        <span class="modal-kicker">Template Library</span>
+                        <h2 id="template-modal-title">Pick a Template</h2>
                         <p id="template-modal-desc">Choose an educational level.</p>
                     </div>
                 </div>
@@ -392,8 +472,8 @@
         <div class="modal-card modal-card-confirm">
             <div class="modal-header">
                 <div>
-                    <span class="modal-kicker">Please confirm</span>
-                    <h2 id="confirm-title">Confirm action</h2>
+                    <span class="modal-kicker">Please Confirm</span>
+                    <h2 id="confirm-title">Confirm Action</h2>
                     <p id="confirm-description">This action will update your current roster.</p>
                 </div>
                 <button type="button" class="close-modal" aria-label="Close confirmation">
