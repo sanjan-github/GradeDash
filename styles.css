@@ -1,12 +1,4 @@
-/* ==========================================================================
-   GradeDash - Apple-grade Dark Triple Gradient Design System
-   Palette:
-     Background: Dark Triple Gradient (Midnight Blue to Void Black)
-     Surfaces: Glassmorphic Navy Obsidian with Apple Squircles
-     Accents: Refined Apple Royal Blue (#2563eb, #1d4ed8, #93c5fd)
-     Typography: Apple SF Pro System Stack
-     Proportions: Golden Ratio (phi = 1.618)
-   ========================================================================== */
+/* GradeDash flat visual system: opaque surfaces, restrained borders, SF Pro Display. */
 
 :root {
     color-scheme: dark;
@@ -29,32 +21,28 @@
     --radius-full: 9999px;
 
     /* Typography: Apple SF Pro */
-    --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-sans: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     --font-mono: "SF Mono", Menlo, Monaco, Consolas, monospace;
-
-    /* Refined Dark Triple Color Gradient & Navy Obsidian Tones */
-    --grad-stop-1: #070d22;
-    --grad-stop-2: #030614;
-    --grad-stop-3: #010206;
-
-    --surface-glass: rgba(10, 18, 46, 0.65);
-    --surface-glass-hover: rgba(14, 25, 62, 0.75);
-    --surface-sidebar: linear-gradient(180deg, rgba(13, 23, 62, 0.88) 0%, rgba(7, 13, 36, 0.96) 100%);
-    --surface-kpi: linear-gradient(145deg, rgba(16, 29, 78, 0.78) 0%, rgba(8, 15, 42, 0.90) 100%);
-    --surface-subtle: rgba(22, 38, 92, 0.42);
-    --surface-elevated: rgba(26, 44, 108, 0.55);
+    /* Flat navy surfaces */
+    --page-background: #090d14;
+    --surface-sidebar: #101722;
+    --surface-kpi: #141d2a;
+    --surface-glass: #121a26;
+    --surface-glass-hover: #182333;
+    --surface-subtle: #1a2533;
+    --surface-elevated: #202d3d;
 
     /* Apple Blue & Palette Accents (Calibrated, not over-saturated) */
     --primary: #2563eb;
     --primary-hover: #1d4ed8;
     --primary-light: #93c5fd;
-    --primary-subtle: rgba(37, 99, 235, 0.18);
-    --primary-border: rgba(147, 197, 253, 0.28);
+    --primary-subtle: #172b4a;
+    --primary-border: #365b91;
 
     /* Borders & Dividers */
-    --border: rgba(120, 155, 255, 0.13);
-    --border-strong: rgba(147, 197, 253, 0.24);
-    --border-highlight: rgba(255, 255, 255, 0.12);
+    --border: #2a3544;
+    --border-strong: #3a4a5e;
+    --border-highlight: #465468;
 
     /* Text System */
     --text-primary: #f8fafc;
@@ -64,19 +52,14 @@
 
     /* Status Colors */
     --success: #10b981;
-    --success-subtle: rgba(16, 185, 129, 0.15);
-    --success-border: rgba(52, 211, 153, 0.3);
+    --success-subtle: #12392f;
+    --success-border: #236b57;
     --danger: #ef4444;
-    --danger-subtle: rgba(239, 68, 68, 0.15);
-    --danger-border: rgba(248, 113, 113, 0.3);
+    --danger-subtle: #421f26;
+    --danger-border: #84404b;
+    /* Depth comes from solid borders, not shadows. */
 
-    /* Apple-style Soft Ambient Shadows */
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
-    --shadow-md: 0 10px 28px rgba(0, 0, 0, 0.45);
-    --shadow-kpi: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 var(--border-highlight);
-    --shadow-modal: 0 28px 70px rgba(0, 0, 0, 0.7);
-
-    --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    --transition: 160ms ease;
 }
 
 *, *::before, *::after {
@@ -84,8 +67,8 @@
 }
 
 :where(button, a, input, select, textarea):focus-visible {
-    outline: 3px solid var(--primary-light);
-    outline-offset: 3px;
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
 }
 
 html {
@@ -103,13 +86,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.015em;
 
-    /* Dark Triple Color Gradient with Ambient Top Glow */
-    background:
-        radial-gradient(ellipse 85% 50% at 50% -12%, rgba(28, 70, 190, 0.38), transparent 75%),
-        radial-gradient(ellipse 55% 35% at 92% 70%, rgba(16, 42, 120, 0.20), transparent 60%),
-        linear-gradient(180deg, var(--grad-stop-1) 0%, var(--grad-stop-2) 50%, var(--grad-stop-3) 100%);
-    background-color: var(--grad-stop-3);
-    background-attachment: fixed;
+    background: var(--page-background);
 }
 
 /* ==========================================================================
@@ -131,15 +108,12 @@ body {
 .sidebar {
     width: 72px;
     background: var(--surface-sidebar);
-    backdrop-filter: blur(28px) saturate(190%);
-    -webkit-backdrop-filter: blur(28px) saturate(190%);
     border-radius: var(--radius-xl);
     padding: var(--space-md) var(--space-xs);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
     z-index: 100;
     transition: width var(--transition);
     border: 1px solid var(--border);
@@ -170,7 +144,6 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 18px;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
     transition: all var(--transition);
 }
 
@@ -234,7 +207,6 @@ body {
     background: var(--primary-subtle);
     color: var(--primary-light);
     border: 1px solid var(--primary-border);
-    box-shadow: 0 0 16px rgba(37, 99, 235, 0.2);
 }
 
 .sidebar-footer {
@@ -314,9 +286,6 @@ body {
     font-weight: 800;
     letter-spacing: -0.03em;
     color: var(--text-primary);
-    background: linear-gradient(180deg, #ffffff 30%, #cbd5e1 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
 }
 
 .realtime-status-pill {
@@ -338,7 +307,6 @@ body {
     height: 7px;
     border-radius: 50%;
     background: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
     animation: applePulse 2s infinite ease-in-out;
 }
 
@@ -377,12 +345,9 @@ body {
 
 .filter-control-card {
     background: var(--surface-glass);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: var(--space-sm) var(--space-md);
-    box-shadow: var(--shadow-sm);
 }
 
 .filter-grid {
@@ -433,7 +398,6 @@ body {
 .segmented-modes .tab-btn.active {
     background: var(--primary);
     color: #ffffff;
-    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
 }
 
 .search-input-box {
@@ -449,7 +413,6 @@ body {
 
 .search-input-box:focus-within {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
     background: rgba(22, 38, 92, 0.6);
 }
 
@@ -501,7 +464,7 @@ body {
 }
 
 .select-box select option {
-    background: var(--grad-stop-2);
+    background: var(--surface-elevated);
     color: var(--text-primary);
 }
 
@@ -535,13 +498,11 @@ body {
 .btn-primary {
     background: var(--primary);
     color: #ffffff;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
 }
 
 .btn-primary:hover {
     background: var(--primary-hover);
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
 }
 
 .btn-secondary {
@@ -580,11 +541,8 @@ body {
     top: calc(100% + 6px);
     right: 0;
     background: rgba(10, 18, 46, 0.94);
-    backdrop-filter: blur(28px) saturate(190%);
-    -webkit-backdrop-filter: blur(28px) saturate(190%);
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-modal);
     padding: 6px;
     display: flex;
     flex-direction: column;
@@ -611,7 +569,7 @@ body {
 }
 
 /* ==========================================================================
-   4-Card Hero Telemetry Metric Row (Apple Squircle & Navy Gradient)
+   4-Card Metrics
    ========================================================================== */
 
 .kpi-hero-grid {
@@ -629,7 +587,6 @@ body {
     flex-direction: column;
     justify-content: space-between;
     min-height: 132px;
-    box-shadow: var(--shadow-kpi);
     border: 1px solid var(--border);
     position: relative;
     overflow: hidden;
@@ -759,12 +716,9 @@ body {
 
 .card {
     background: var(--surface-glass);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: var(--space-md);
-    box-shadow: var(--shadow-sm);
 }
 
 .card-header {
@@ -842,7 +796,6 @@ body {
 .form-group input:focus,
 .form-group select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
     background: rgba(22, 38, 92, 0.6);
 }
 
@@ -901,7 +854,7 @@ body {
 }
 
 /* ==========================================================================
-   Roster Table (Apple Glass Aesthetic)
+   Roster Table
    ========================================================================== */
 
 .table-container {
@@ -1151,8 +1104,6 @@ tbody td strong {
     position: fixed;
     inset: 0;
     background: rgba(2, 4, 10, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1162,15 +1113,12 @@ tbody td strong {
 
 .modal-card {
     background: rgba(10, 18, 46, 0.94);
-    backdrop-filter: blur(28px) saturate(190%);
-    -webkit-backdrop-filter: blur(28px) saturate(190%);
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-xl);
     width: 100%;
     max-width: 580px;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: var(--shadow-modal);
     display: flex;
     flex-direction: column;
     padding: var(--space-md);
@@ -1329,7 +1277,6 @@ tbody td strong {
 .template-card:hover {
     border-color: var(--primary);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
 }
 
 .template-card h4 {
@@ -1365,7 +1312,6 @@ tbody td strong {
     color: #ffffff;
     padding: var(--space-xs) var(--space-md);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-modal);
     display: flex;
     align-items: center;
     gap: var(--space-xs);
