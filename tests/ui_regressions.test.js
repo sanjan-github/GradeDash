@@ -22,7 +22,7 @@ test('table action buttons have matching component styles', () => {
 
 test('interactive controls expose visible keyboard focus indicators', () => {
     assert.match(css, /:where\([^)]*button[^)]*\):focus-visible/);
-    assert.match(css, /outline:\s*3px solid var\(--primary-light\)/);
+    assert.match(css, /outline:\s*2px solid var\(--primary\)/);
 });
 
 test('primary action and modal controls meet touch target size', () => {
